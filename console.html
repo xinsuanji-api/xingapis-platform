@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用户控制台 - 星算纪 API 平台</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(135deg, #0a1628 0%, #0d2137 100%);
+      color: #e2e8f0;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+      padding: 1.5rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #00e5ff, #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .user-email {
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+
+    .btn-logout {
+      padding: 0.6rem 1.5rem;
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.95rem;
+    }
+
+    .btn-logout:hover {
+      background: rgba(239, 68, 68, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    .page-title {
+      font-size: 2.5rem;
+      color: #00e5ff;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 20px rgba(0, 229, 255, 0.5);
+    }
+
+    .page-subtitle {
+      color: #94a3b8;
+      font-size: 1.1rem;
+      margin-bottom: 3rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .stat-card {
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+      border-color: #00e5ff;
+      box-shadow: 0 0 30px rgba(0, 229, 255, 0.3);
+      transform: translateY(-5px);
+    }
+
+    .stat-label {
+      color: #64748b;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #00e5ff;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-desc {
+      color: #94a3b8;
+      font-size: 0.85rem;
+    }
+
+    .section {
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      border-radius: 16px;
+      padding: 2.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.8rem;
+      color: #7c3aed;
+    }
+
+    .btn {
+      padding: 0.8rem 2rem;
+      background: linear-gradient(135deg, #00e5ff, #7c3aed);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.95rem;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(0, 229, 255, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(0, 229, 255, 0.1);
+      color: #00e5ff;
+      border: 1px solid rgba(0, 229, 255, 0.3);
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: 1rem;
+      color: #64748b;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+    }
+
+    td {
+      padding: 1rem;
+      color: #e2e8f0;
+      border-bottom: 1px solid rgba(0, 229, 255, 0.05);
+    }
+
+    tr:hover {
+      background: rgba(0, 229, 255, 0.05);
+    }
+
+    .api-key-cell {
+      font-family: "Courier New", monospace;
+      color: #00e5ff;
+      font-size: 0.9rem;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .status-active {
+      background: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
+    }
+
+    .status-inactive {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #0f172a;
+      border: 1px solid rgba(0, 229, 255, 0.3);
+      border-radius: 16px;
+      padding: 3rem;
+      max-width: 500px;
+      width: 90%;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      color: #00e5ff;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      color: #94a3b8;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-size: 0.95rem;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #00e5ff;
+      box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: #94a3b8;
+    }
+
+    .error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 8px;
+      padding: 1rem;
+      color: #ef4444;
+      margin-bottom: 2rem;
+    }
+
+    .success {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      border-radius: 8px;
+      padding: 1rem;
+      color: #22c55e;
+      margin-bottom: 2rem;
+    }
+
+    .api-key-display {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 1rem;
+      border-radius: 8px;
+      font-family: "Courier New", monospace;
+      color: #00ff00;
+      word-break: break-all;
+      margin-top: 1rem;
+      border: 1px solid rgba(0, 229, 255, 0.2);
+    }
+
+    .warning-box {
+      background: rgba(234, 179, 8, 0.1);
+      border: 1px solid rgba(234, 179, 8, 0.3);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+
+    .warning-text {
+      color: #eab308;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        padding: 1rem;
+      }
+
+      .container {
+        padding: 2rem 1rem;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section {
+        padding: 1.5rem;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 头部导航 -->
+  <header class="header">
+    <div class="logo">🚀 星算纪 API 平台</div>
+    <div class="user-menu">
+      <span class="user-email" id="user-email">加载中...</span>
+      <button class="btn-logout" id="btn-logout">退出登录</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <h1 class="page-title">用户控制台</h1>
+    <p class="page-subtitle">管理您的 API Keys、查看用量统计</p>
+
+    <!-- 统计卡片 -->
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">总配额</div>
+        <div class="stat-value" id="stat-total-quota">-</div>
+        <div class="stat-desc">Token 数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">已使用</div>
+        <div class="stat-value" id="stat-used">-</div>
+        <div class="stat-desc">Token 数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">剩余配额</div>
+        <div class="stat-value" id="stat-remaining">-</div>
+        <div class="stat-desc">Token 数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">API Keys</div>
+        <div class="stat-value" id="stat-keys-count">-</div>
+        <div class="stat-desc">个激活的 Key</div>
+      </div>
+    </div>
+
+    <!-- API Keys 列表 -->
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title">🔑 API Keys</h2>
+        <button class="btn" id="btn-create-key">+ 创建 API Key</button>
+      </div>
+      <div id="apikeys-list">
+        <div class="loading">加载中...</div>
+      </div>
+    </div>
+
+    <!-- 使用趋势（最近 30 天） -->
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title">📊 使用趋势（最近 30 天）</h2>
+      </div>
+      <div id="usage-chart">
+        <div class="loading">加载中...</div>
+      </div>
+    </div>
+
+    <!-- 热门 API -->
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title">🔥 热门 API</h2>
+      </div>
+      <div id="top-apis">
+        <div class="loading">加载中...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 创建 API Key 模态框 -->
+  <div class="modal" id="modal-create-key">
+    <div class="modal-content">
+      <h3 class="modal-title">创建新的 API Key</h3>
+      <form id="form-create-key">
+        <div class="form-group">
+          <label class="form-label" for="key-name">API Key 名称 *</label>
+          <input type="text" class="form-input" id="key-name" placeholder="例如：我的第一个 Key" required>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn">创建</button>
+          <button type="button" class="btn btn-secondary" id="btn-cancel-create">取消</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 显示新创建的 API Key 模态框 -->
+  <div class="modal" id="modal-show-key">
+    <div class="modal-content">
+      <h3 class="modal-title">✅ API Key 创建成功！</h3>
+      <div class="success">
+        <p><strong>请妥善保管！此 Key 只显示一次。</strong></p>
+      </div>
+      <div class="api-key-display" id="new-api-key"></div>
+      <div class="warning-box">
+        <p class="warning-text">⚠️ 请立即复制并保存到安全的地方。关闭此窗口后将无法再次查看完整 Key。</p>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn" id="btn-copy-key">复制 Key</button>
+        <button type="button" class="btn btn-secondary" id="btn-close-show-key">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Supabase 配置（替换为您的配置）
+    const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+    // 初始化 Supabase 客户端
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // DOM 元素
+    const userEmailEl = document.getElementById('user-email');
+    const btnLogout = document.getElementById('btn-logout');
+    const statsGrid = document.getElementById('stats-grid');
+    const apikeysList = document.getElementById('apikeys-list');
+    const usageChart = document.getElementById('usage-chart');
+    const topApis = document.getElementById('top-apis');
+    const btnCreateKey = document.getElementById('btn-create-key');
+    const modalCreateKey = document.getElementById('modal-create-key');
+    const btnCancelCreate = document.getElementById('btn-cancel-create');
+    const formCreateKey = document.getElementById('form-create-key');
+    const modalShowKey = document.getElementById('modal-show-key');
+    const newApiKeyEl = document.getElementById('new-api-key');
+    const btnCopyKey = document.getElementById('btn-copy-key');
+    const btnCloseShowKey = document.getElementById('btn-close-show-key');
+
+    // 检查登录状态
+    async function checkAuth() {
+      const { data: { user }, error } = await supabase.auth.getUser();
+
+      if (error || !user) {
+        // 未登录，跳转到登录页
+        window.location.href = '/login';
+        return null;
+      }
+
+      userEmailEl.textContent = user.email;
+      return user;
+    }
+
+    // 加载用户统计
+    async function loadUserStats() {
+      const { data, error } = await supabase.functions.invoke('user-stats');
+
+      if (error) {
+        console.error('加载统计失败:', error);
+        return;
+      }
+
+      const stats = data.data;
+
+      // 更新统计卡片
+      document.getElementById('stat-total-quota').textContent = formatNumber(stats.quota.total);
+      document.getElementById('stat-used').textContent = formatNumber(stats.quota.used);
+      document.getElementById('stat-remaining').textContent = formatNumber(stats.quota.remaining);
+      document.getElementById('stat-keys-count').textContent = stats.api_keys.active;
+
+      // 更新使用趋势（简化版，实际应该画图表）
+      if (stats.usage_30d.daily_breakdown) {
+        const days = Object.keys(stats.usage_30d.daily_breakdown).length;
+        usageChart.innerHTML = `
+          <p style="color: #94a3b8;">最近 30 天共调用 <strong style="color: #00e5ff;">${stats.usage_30d.total_requests}</strong> 次请求，消耗 <strong style="color: #00e5ff;">${formatNumber(stats.usage_30d.total_tokens)}</strong> Tokens，成本 <strong style="color: #00e5ff;">¥${stats.usage_30d.total_cost.toFixed(2)}</strong>。</p>
+        `;
+      }
+
+      // 更新热门 API
+      if (stats.top_apis && stats.top_apis.length > 0) {
+        topApis.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>API</th>
+                <th>调用次数</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${stats.top_apis.map(api => `
+                <tr>
+                  <td class="api-key-cell">${api.api}</td>
+                  <td>${api.count}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      } else {
+        topApis.innerHTML = '<p style="color: #94a3b8;">暂无数据</p>';
+      }
+    }
+
+    // 加载 API Keys 列表
+    async function loadApiKeys() {
+      const { data, error } = await supabase.functions.invoke('api-keys');
+
+      if (error) {
+        apikeysList.innerHTML = `<div class="error">加载失败: ${error.message}</div>`;
+        return;
+      }
+
+      const keys = data.data;
+
+      if (keys.length === 0) {
+        apikeysList.innerHTML = '<p style="color: #94a3b8;">暂无 API Keys，点击上方按钮创建。</p>';
+        return;
+      }
+
+      apikeysList.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>名称</th>
+              <th>API Key</th>
+              <th>状态</th>
+              <th>配额使用</th>
+              <th>最后使用</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${keys.map(key => `
+              <tr>
+                <td>${key.name}</td>
+                <td class="api-key-cell">${key.key_prefix}...</td>
+                <td><span class="status-badge ${key.is_active ? 'status-active' : 'status-inactive'}">${key.is_active ? '激活' : '禁用'}</span></td>
+                <td>${formatNumber(key.quota_used)} / ${formatNumber(key.quota_total)}</td>
+                <td>${key.last_used_at ? new Date(key.last_used_at).toLocaleString('zh-CN') : '从未使用'}</td>
+                <td><button class="btn btn-danger" onclick="deleteKey('${key.id}')">删除</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    // 创建 API Key
+    async function createKey(name) {
+      const { data, error } = await supabase.functions.invoke('api-keys', {
+        body: { name }
+      });
+
+      if (error) {
+        alert(`创建失败: ${error.message}`);
+        return null;
+      }
+
+      return data.data;
+    }
+
+    // 删除 API Key
+    window.deleteKey = async function(keyId) {
+      if (!confirm('确定要删除此 API Key 吗？此操作不可撤销。')) {
+        return;
+      }
+
+      const { error } = await supabase.functions.invoke(`api-keys/${keyId}`, {
+        method: 'DELETE'
+      });
+
+      if (error) {
+        alert(`删除失败: ${error.message}`);
+        return;
+      }
+
+      // 重新加载列表
+      loadApiKeys();
+      loadUserStats();
+    };
+
+    // 格式化数字
+    function formatNumber(num) {
+      if (num >= 1000000) {
+        return (num / 1000000).toFixed(1) + 'M';
+      }
+      if (num >= 1000) {
+        return (num / 1000).toFixed(1) + 'K';
+      }
+      return num.toString();
+    }
+
+    // 事件监听
+    btnLogout.addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = '/';
+    });
+
+    btnCreateKey.addEventListener('click', () => {
+      modalCreateKey.classList.add('active');
+    });
+
+    btnCancelCreate.addEventListener('click', () => {
+      modalCreateKey.classList.remove('active');
+    });
+
+    formCreateKey.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('key-name').value;
+
+      const newKey = await createKey(name);
+      if (!newKey) return;
+
+      // 显示新 Key
+      newApiKeyEl.textContent = newKey.full_key;
+      modalCreateKey.classList.remove('active');
+      modalShowKey.classList.add('active');
+
+      // 重新加载列表
+      loadApiKeys();
+      loadUserStats();
+    });
+
+    btnCopyKey.addEventListener('click', () => {
+      const key = newApiKeyEl.textContent;
+      navigator.clipboard.writeText(key).then(() => {
+        alert('已复制到剪贴板！');
+      });
+    });
+
+    btnCloseShowKey.addEventListener('click', () => {
+      modalShowKey.classList.remove('active');
+    });
+
+    // 页面加载时初始化
+    (async () => {
+      const user = await checkAuth();
+      if (!user) return;
+
+      await loadUserStats();
+      await loadApiKeys();
+    })();
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+</body>
+</html>

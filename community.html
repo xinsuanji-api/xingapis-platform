@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>开发者社区 - 星算纪 API 平台</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, sans-serif; background: linear-gradient(135deg, #0a1628 0%, #0d2137 100%); color: #e2e8f0; min-height: 100vh; }
+    .header { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0, 229, 255, 0.2); padding: 1.5rem 3rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .logo { font-size: 1.8rem; font-weight: 700; background: linear-gradient(135deg, #00e5ff, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .nav-links { display: flex; gap: 2rem; align-items: center; }
+    .nav-link { color: #94a3b8; text-decoration: none; transition: all 0.3s; font-size: 0.95rem; }
+    .nav-link:hover { color: #00e5ff; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 3rem 2rem; }
+    .page-title { font-size: 2.5rem; color: #00e5ff; margin-bottom: 0.5rem; }
+    .page-subtitle { color: #94a3b8; font-size: 1.1rem; margin-bottom: 3rem; }
+    .community-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; margin-bottom: 3rem; }
+    .community-card { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 16px; padding: 2rem; transition: all 0.3s; }
+    .community-card:hover { border-color: #00e5ff; transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0, 229, 255, 0.2); }
+    .card-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .card-title { font-size: 1.3rem; color: #00e5ff; margin-bottom: 0.8rem; }
+    .card-desc { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.2rem; }
+    .card-link { color: #7c3aed; text-decoration: none; font-size: 0.9rem; transition: all 0.3s; }
+    .card-link:hover { color: #00e5ff; }
+    .forum-section { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 16px; padding: 2.5rem; margin-bottom: 3rem; }
+    .forum-title { font-size: 1.8rem; color: #7c3aed; margin-bottom: 1.5rem; }
+    .topic-list { display: flex; flex-direction: column; gap: 1rem; }
+    .topic-item { background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(0, 229, 255, 0.1); border-radius: 8px; padding: 1.2rem; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s; }
+    .topic-item:hover { border-color: #00e5ff; background: rgba(0, 229, 255, 0.05); }
+    .topic-info { flex: 1; }
+    .topic-title { color: #e2e8f0; font-size: 1.1rem; margin-bottom: 0.5rem; cursor: pointer; }
+    .topic-title:hover { color: #00e5ff; }
+    .topic-meta { color: #64748b; font-size: 0.85rem; }
+    .topic-stats { display: flex; gap: 1.5rem; color: #94a3b8; font-size: 0.9rem; }
+    .stat-item { display: flex; align-items: center; gap: 0.3rem; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="logo">🚀 星算纪 API 平台</div>
+    <nav class="nav-links">
+      <a href="/" class="nav-link">首页</a>
+      <a href="/docs" class="nav-link">API 文档</a>
+      <a href="/pricing" class="nav-link">价格</a>
+      <a href="/console.html" class="nav-link">控制台</a>
+      <a href="/community.html" class="nav-link" style="color: #00e5ff;">社区</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h1 class="page-title">👥 开发者社区</h1>
+    <p class="page-subtitle">加入数千名开发者的交流平台，分享经验、解决问题、共同成长</p>
+
+    <div class="community-grid">
+      <div class="community-card">
+        <div class="card-icon">💬</div>
+        <div class="card-title">技术论坛</div>
+        <div class="card-desc">讨论 API 使用技巧、最佳实践、疑难解答。我们的技术专家团队每天都会参与讨论。</div>
+        <a href="#forum" class="card-link">进入论坛 →</a>
+      </div>
+
+      <div class="community-card">
+        <div class="card-icon">📚</div>
+        <div class="card-title">知识库</div>
+        <div class="card-desc">精选教程、案例分析、代码示例。由社区贡献，持续更新。</div>
+        <a href="/docs" class="card-link">浏览知识库 →</a>
+      </div>
+
+      <div class="community-card">
+        <div class="card-icon">🎥</div>
+        <div class="card-title">视频教程</div>
+        <div class="card-desc">手把手教学视频，从入门到精通。每周更新 2-3 个新视频。</div>
+        <a href="#" class="card-link">观看视频 →</a>
+      </div>
+
+      <div class="community-card">
+        <div class="card-icon">🏆</div>
+        <div class="card-title">排行榜</div>
+        <div class="card-desc">贡献者排行榜，优秀开发者将获得专属奖励和认证。</div>
+        <a href="#leaderboard" class="card-link">查看排行 →</a>
+      </div>
+
+      <div class="community-card">
+        <div class="card-icon">📅</div>
+        <div class="card-title">线上活动</div>
+        <div class="card-desc">定期举办线上技术分享会、黑客松、API 设计大赛。参与即有机会获奖。</div>
+        <a href="#events" class="card-link">查看活动 →</a>
+      </div>
+
+      <div class="community-card">
+        <div class="card-icon">💡</div>
+        <div class="card-title">功能投票</div>
+        <div class="card-desc">为您最需要的功能投票，我们会优先开发高票功能。</div>
+        <a href="#voting" class="card-link">参与投票 →</a>
+      </div>
+    </div>
+
+    <div class="forum-section" id="forum">
+      <h2 class="forum-title">🔥 热门讨论</h2>
+      <div class="topic-list">
+        <div class="topic-item">
+          <div class="topic-info">
+            <div class="topic-title">如何优化 Qwen3.7 的 Token 使用？分享我的 5 个技巧</div>
+              👤 张开发 · 🕒 2 小时前 · 💬 23 回复
+            </div>
+          </div>
+          <div class="topic-stats">
+            <div class="stat-item">👍 128</div>
+            <div class="stat-item">💬 23</div>
+            <div class="stat-item">👁️ 1024</div>
+          </div>
+        </div>
+
+        <div class="topic-item">
+          <div class="topic-info">
+            <div class="topic-title">【教程】从零开始搭建 AI 客服系统（附完整代码）</div>
+              👤 AI爱好者 · 🕒 5 小时前 · 💬 45 回复
+            </div>
+          </div>
+          <div class="topic-stats">
+            <div class="stat-item">👍 256</div>
+            <div class="stat-item">💬 45</div>
+            <div class="stat-item">👁️ 2048</div>
+          </div>
+        </div>
+
+        <div class="topic-item">
+          <div class="topic-info">
+            <div class="topic-title">DeepSeek-R1 和 Qwen3.7 怎么选？实测对比报告</div>
+              👤 技术对比哥 · 🕒 8 小时前 · 💬 67 回复
+            </div>
+          </div>
+          <div class="topic-stats">
+            <div class="stat-item">👍 512</div>
+            <div class="stat-item">💬 67</div>
+            <div class="stat-item">👁️ 4096</div>
+          </div>
+        </div>
+
+        <div class="topic-item">
+          <div class="topic-info">
+            <div class="topic-title">【紧急】API 调用返回 429 错误，怎么办？</div>
+              👤 新手开发者 · 🕒 10 分钟前 · 💬 3 回复
+            </div>
+          </div>
+          <div class="topic-stats">
+            <div class="stat-item">👍 5</div>
+            <div class="stat-item">💬 3</div>
+            <div class="stat-item">👁️ 128</div>
+          </div>
+        </div>
+
+        <div class="topic-item">
+          <div class="topic-info">
+            <div class="topic-title">分享我的创业项目：用星算纪 API 做的智能写作工具</div>
+              👤 创业者小王 · 🕒 1 天前 · 💬 89 回复
+            </div>
+          </div>
+          <div class="topic-stats">
+            <div class="stat-item">👍 1024</div>
+            <div class="stat-item">💬 89</div>
+            <div class="stat-item">👁️ 8192</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

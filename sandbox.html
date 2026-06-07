@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API 测试沙箱 - 星算纪</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, sans-serif; background: linear-gradient(135deg, #0a1628 0%, #0d2137 100%); color: #e2e8f0; min-height: 100vh; }
+    .header { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0, 229, 255, 0.2); padding: 1.5rem 3rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .logo { font-size: 1.8rem; font-weight: 700; background: linear-gradient(135deg, #00e5ff, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .nav-links { display: flex; gap: 2rem; }
+    .nav-link { color: #94a3b8; text-decoration: none; transition: all 0.3s; font-size: 0.95rem; }
+    .nav-link:hover { color: #00e5ff; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 3rem 2rem; display: grid; grid-template-columns: 300px 1fr; gap: 2rem; }
+    .sidebar { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 16px; padding: 2rem; height: fit-content; }
+    .sidebar-title { font-size: 1.3rem; color: #00e5ff; margin-bottom: 1.5rem; }
+    .api-list { list-style: none; }
+    .api-item { padding: 0.8rem 1rem; margin-bottom: 0.5rem; border-radius: 8px; cursor: pointer; transition: all 0.3s; color: #94a3b8; }
+    .api-item:hover { background: rgba(0, 229, 255, 0.1); color: #00e5ff; }
+    .api-item.active { background: rgba(0, 229, 255, 0.15); color: #00e5ff; border-left: 3px solid #00e5ff; }
+    .main-content { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 16px; padding: 2.5rem; }
+    .sandbox-title { font-size: 2rem; color: #00e5ff; margin-bottom: 0.5rem; }
+    .sandbox-desc { color: #94a3b8; font-size: 1rem; margin-bottom: 2rem; }
+    .request-url-row { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+    .method-select { padding: 0.8rem 1rem; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 8px; color: #00e5ff; font-size: 0.95rem; cursor: pointer; }
+    .url-input { flex: 1; padding: 0.8rem 1rem; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 8px; color: #e2e8f0; font-size: 0.95rem; font-family: "Courier New", monospace; }
+    .url-input:focus { outline: none; border-color: #00e5ff; box-shadow: 0 0 10px rgba(0, 229, 255, 0.3); }
+    .tab-bar { display: flex; gap: 1rem; border-bottom: 1px solid rgba(0, 229, 255, 0.1); margin-bottom: 1.5rem; }
+    .tab { padding: 0.8rem 1.5rem; color: #94a3b8; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.3s; font-size: 0.95rem; }
+    .tab:hover { color: #00e5ff; }
+    .tab.active { color: #00e5ff; border-bottom-color: #00e5ff; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .code-editor { background: #000; border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 8px; padding: 1.5rem; font-family: "Courier New", monospace; font-size: 0.9rem; color: #00ff00; min-height: 300px; overflow: auto; white-space: pre; }
+    .code-editor:focus { outline: none; border-color: #00e5ff; box-shadow: 0 0 10px rgba(0, 229, 255, 0.3); }
+    .btn-send { padding: 1rem 3rem; background: linear-gradient(135deg, #00e5ff, #7c3aed); color: white; border: none; border-radius: 25px; font-weight: 600; font-size: 1.1rem; cursor: pointer; transition: all 0.3s; margin-top: 2rem; }
+    .btn-send:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0, 229, 255, 0.4); }
+    .btn-send:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .response-section { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(0, 229, 255, 0.1); }
+    .response-title { font-size: 1.5rem; color: #7c3aed; margin-bottom: 1.5rem; }
+    .response-meta { display: flex; gap: 1.5rem; color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem; }
+    .response-meta strong { color: #00e5ff; }
+    .response-body { background: #000; border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 8px; padding: 1.5rem; font-family: "Courier New", monospace; font-size: 0.9rem; color: #00ff00; min-height: 200px; overflow: auto; white-space: pre-wrap; }
+    .loading { text-align: center; padding: 3rem; color: #94a3b8; }
+    .error-message { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 1rem; color: #ef4444; margin-top: 1rem; }
+    @media (max-width: 1024px) { .container { grid-template-columns: 1fr; } .sidebar { display: none; } }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="logo">🚀 星算纪 API 平台</div>
+    <nav class="nav-links">
+      <a href="/" class="nav-link">首页</a>
+      <a href="/docs" class="nav-link">API 文档</a>
+      <a href="/pricing" class="nav-link">价格</a>
+      <a href="/sandbox.html" class="nav-link" style="color: #00e5ff;">测试沙箱</a>
+      <a href="/console.html" class="nav-link">控制台</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <aside class="sidebar">
+      <h3 class="sidebar-title">📚 选择 API</h3>
+      <ul class="api-list" id="api-list">
+        <li class="api-item active" data-api="qwen-plus">通义千问 Plus</li>
+        <li class="api-item" data-api="deepseek-v3">DeepSeek-V3</li>
+        <li class="api-item" data-api="ernie-4.0">文心一言 4.0</li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <h1 class="sandbox-title">API 测试沙箱</h1>
+      <p class="sandbox-desc">在线测试 API，无需编写代码</p>
+
+      <div class="request-url-row">
+        <select class="method-select" id="request-method">
+          <option value="POST" selected>POST</option>
+          <option value="GET">GET</option>
+        </select>
+        <input type="text" class="url-input" id="request-url" value="https://api.xinsuanji.cn/v1/chat/completions" readonly>
+      </div>
+
+      <div class="tab-bar">
+        <div class="tab active" data-tab="headers">请求头 (Headers)</div>
+        <div class="tab" data-tab="body">请求体 (Body)</div>
+      </div>
+
+      <div class="tab-content active" id="tab-headers">
+        <pre class="code-editor" contenteditable="true" id="request-headers">{
+  "Content-Type": "application/json",
+  "x-api-key": "YOUR_API_KEY"
+}</pre>
+      </div>
+
+      <div class="tab-content" id="tab-body">
+        <pre class="code-editor" contenteditable="true" id="request-body">{
+  "model": "qwen-plus",
+  "messages": [
+    {"role": "user", "content": "你好！请介绍一下你自己。"}
+  ],
+  "temperature": 0.7,
+  "max_tokens": 2000
+}</pre>
+      </div>
+
+      <button class="btn-send" id="btn-send">🚀 发送请求</button>
+
+      <div class="response-section" id="response-section" style="display: none;">
+        <h3 class="response-title">📥 响应结果</h3>
+        <div class="response-meta">
+          <span>状态码: <strong id="response-status">200</strong></span>
+          <span>延迟: <strong id="response-latency">0</strong> ms</span>
+        </div>
+        <div class="response-body" id="response-body">（等待响应...）</div>
+      </div>
+
+      <div class="loading" id="loading" style="display: none;">⏳ 发送请求中...</div>
+      <div class="error-message" id="error-message" style="display: none;"></div>
+    </main>
+  </div>
+
+  <script>
+    const apiList = document.getElementById('api-list');
+    const requestMethod = document.getElementById('request-method');
+    const requestUrl = document.getElementById('request-url');
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    const requestHeaders = document.getElementById('request-headers');
+    const requestBody = document.getElementById('request-body');
+    const btnSend = document.getElementById('btn-send');
+    const responseSection = document.getElementById('response-section');
+    const responseStatus = document.getElementById('response-status');
+    const responseLatency = document.getElementById('response-latency');
+    const responseBody = document.getElementById('response-body');
+    const loading = document.getElementById('loading');
+    const errorMessage = document.getElementById('error-message');
+
+    const apiEndpoints = {
+      'qwen-plus': 'https://api.xinsuanji.cn/v1/chat/completions',
+      'deepseek-v3': 'https://api.xinsuanji.cn/v1/chat/completions',
+      'ernie-4.0': 'https://api.xinsuanji.cn/v1/chat/completions',
+    };
+
+    const apiModels = {
+      'qwen-plus': 'qwen-plus',
+      'deepseek-v3': 'deepseek-v3',
+      'ernie-4.0': 'ernie-4.0',
+    };
+
+    apiList.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('api-item')) return;
+      document.querySelectorAll('.api-item').forEach(item => item.classList.remove('active'));
+      e.target.classList.add('active');
+      const apiSlug = e.target.dataset.api;
+      requestUrl.value = apiEndpoints[apiSlug];
+      try {
+        const body = JSON.parse(requestBody.textContent);
+        body.model = apiModels[apiSlug];
+        requestBody.textContent = JSON.stringify(body, null, 2);
+      } catch (error) { console.error('更新 model 失败:', error); }
+    });
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const targetTab = tab.dataset.tab;
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        tabContents.forEach(content => content.classList.remove('active'));
+        document.getElementById(`tab-${targetTab}`).classList.add('active');
+      });
+    });
+
+    btnSend.addEventListener('click', async () => {
+      errorMessage.style.display = 'none';
+      responseSection.style.display = 'none';
+      btnSend.disabled = true;
+      loading.style.display = 'block';
+
+      let headers = {};
+      try { headers = JSON.parse(requestHeaders.textContent); } catch (error) {
+        errorMessage.textContent = '请求头 JSON 格式错误';
+        errorMessage.style.display = 'block';
+        btnSend.disabled = false;
+        loading.style.display = 'none';
+        return;
+      }
+
+      let body = null;
+      if (requestMethod.value !== 'GET') {
+        try { body = JSON.parse(requestBody.textContent); } catch (error) {
+          errorMessage.textContent = '请求体 JSON 格式错误';
+          errorMessage.style.display = 'block';
+          btnSend.disabled = false;
+          loading.style.display = 'none';
+          return;
+        }
+      }
+
+      const startTime = Date.now();
+      try {
+        const response = await fetch(requestUrl.value, {
+          method: requestMethod.value,
+          headers: headers,
+          body: body ? JSON.stringify(body) : null,
+        });
+        const latency = Date.now() - startTime;
+        const responseData = await response.json();
+        responseSection.style.display = 'block';
+        responseStatus.textContent = response.status;
+        responseLatency.textContent = latency;
+        responseBody.textContent = JSON.stringify(responseData, null, 2);
+      } catch (error) {
+        const latency = Date.now() - startTime;
+        responseSection.style.display = 'block';
+        responseStatus.textContent = 'ERROR';
+        responseLatency.textContent = latency;
+        responseBody.textContent = `请求失败: ${error.message}`;
+        errorMessage.textContent = `❌ 请求失败: ${error.message}`;
+        errorMessage.style.display = 'block';
+      } finally {
+        btnSend.disabled = false;
+        loading.style.display = 'none';
+      }
+    });
+
+    (() => {
+      const firstApi = document.querySelector('.api-item');
+      if (firstApi) firstApi.click();
+    })();
+  </script>
+</body>
+</html>

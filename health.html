@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API 健康监测 - 星算纪 API 平台</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: linear-gradient(135deg, #0a1628 0%, #0d2137 100%); color: #e2e8f0; line-height: 1.6; min-height: 100vh; }
+    .header { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0, 229, 255, 0.2); padding: 1.5rem 3rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .logo { font-size: 1.8rem; font-weight: 700; background: linear-gradient(135deg, #00e5ff, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .nav-links { display: flex; gap: 2rem; }
+    .nav-link { color: #94a3b8; text-decoration: none; transition: all 0.3s; font-size: 0.95rem; }
+    .nav-link:hover { color: #00e5ff; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 3rem 2rem; }
+    .page-title { font-size: 2.5rem; color: #00e5ff; margin-bottom: 0.5rem; text-shadow: 0 0 20px rgba(0, 229, 255, 0.5); }
+    .page-subtitle { color: #94a3b8; font-size: 1.1rem; margin-bottom: 3rem; }
+    .health-overview { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 4rem; }
+    .overview-card { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 16px; padding: 2rem; text-align: center; transition: all 0.3s; }
+    .overview-card:hover { border-color: #00e5ff; box-shadow: 0 0 30px rgba(0, 229, 255, 0.3); transform: translateY(-5px); }
+    .overview-label { color: #64748b; font-size: 0.9rem; margin-bottom: 0.5rem; }
+    .overview-value { font-size: 3rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .overview-value.operational { color: #22c55e; }
+    .overview-value.degraded { color: #eab308; }
+    .overview-value.outage { color: #ef4444; }
+    .overview-desc { color: #94a3b8; font-size: 0.85rem; }
+    .section { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 16px; padding: 2.5rem; margin-bottom: 3rem; }
+    .section-title { font-size: 1.8rem; color: #7c3aed; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid rgba(124, 58, 237, 0.3); }
+    .api-health-grid { display: grid; gap: 1.5rem; }
+    .api-health-card { background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(0, 229, 255, 0.1); border-radius: 12px; padding: 1.5rem; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 1.5rem; align-items: center; transition: all 0.3s; }
+    .api-health-card:hover { border-color: rgba(0, 229, 255, 0.3); background: rgba(0, 229, 255, 0.05); }
+    .api-name { font-size: 1.1rem; color: #00e5ff; font-weight: 600; }
+    .api-provider { color: #94a3b8; font-size: 0.85rem; margin-top: 0.3rem; }
+    .health-status { text-align: center; }
+    .status-badge { display: inline-block; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600; }
+    .status-operational { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+    .status-degraded { background: rgba(234, 179, 8, 0.2); color: #eab308; }
+    .status-outage { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    .health-metric { text-align: center; }
+    .metric-label { color: #64748b; font-size: 0.8rem; margin-bottom: 0.3rem; }
+    .metric-value { color: #e2e8f0; font-size: 1.1rem; font-weight: 600; }
+    .metric-value.good { color: #22c55e; }
+    .metric-value.warning { color: #eab308; }
+    .metric-value.error { color: #ef4444; }
+    .uptime-bar { height: 8px; background: rgba(0, 0, 0, 0.3); border-radius: 4px; margin-top: 0.5rem; overflow: hidden; }
+    .uptime-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+    .uptime-fill.operational { background: linear-gradient(90deg, #22c55e, #4ade80); }
+    .uptime-fill.degraded { background: linear-gradient(90deg, #eab308, #facc15); }
+    .uptime-fill.outage { background: linear-gradient(90deg, #ef4444, #f87171); }
+    .last-checked { color: #64748b; font-size: 0.8rem; margin-top: 1rem; text-align: center; }
+    .btn-refresh { display: block; margin: 2rem auto 0; padding: 1rem 3rem; background: linear-gradient(135deg, #00e5ff, #7c3aed); color: white; border: none; border-radius: 25px; font-weight: 600; font-size: 1.1rem; cursor: pointer; transition: all 0.3s; }
+    .btn-refresh:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0, 229, 255, 0.4); }
+    .btn-refresh:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .loading { text-align: center; padding: 3rem; color: #94a3b8; }
+    @media (max-width: 1024px) {
+      .api-health-card { grid-template-columns: 1fr; }
+      .header { padding: 1rem; }
+      .container { padding: 2rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 头部导航 -->
+  <header class="header">
+    <div class="logo">🚀 星算纪 API 平台</div>
+    <nav class="nav-links">
+      <a href="/" class="nav-link">首页</a>
+      <a href="/docs" class="nav-link">API 文档</a>
+      <a href="/pricing" class="nav-link">价格</a>
+      <a href="/sandbox.html" class="nav-link">测试沙箱</a>
+      <a href="/health.html" class="nav-link" style="color: #00e5ff;">健康监测</a>
+      <a href="/console.html" class="nav-link">控制台</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h1 class="page-title">API 健康监测</h1>
+    <p class="page-subtitle">实时监控所有 API 产品的可用性和性能</p>
+
+    <!-- 总览卡片 -->
+    <div class="health-overview" id="health-overview">
+      <div class="overview-card">
+        <div class="overview-label">总 API 数</div>
+        <div class="overview-value" id="total-apis">-</div>
+        <div class="overview-desc">个活跃产品</div>
+      </div>
+      <div class="overview-card">
+        <div class="overview-label">运行正常</div>
+        <div class="overview-value operational" id="operational-count">-</div>
+        <div class="overview-desc">API 正常运行</div>
+      </div>
+      <div class="overview-card">
+        <div class="overview-label">性能下降</div>
+        <div class="overview-value degraded" id="degraded-count">-</div>
+        <div class="overview-desc">API 响应缓慢</div>
+      </div>
+      <div class="overview-card">
+        <div class="overview-label">服务中断</div>
+        <div class="overview-value outage" id="outage-count">-</div>
+        <div class="overview-desc">API 不可用</div>
+      </div>
+    </div>
+
+    <!-- API 详细健康状态 -->
+    <div class="section">
+      <h2 class="section-title">📡 API 详细状态</h2>
+      <div class="api-health-grid" id="api-health-grid">
+        <div class="loading">加载中...</div>
+      </div>
+    </div>
+
+    <!-- 刷新按钮 -->
+    <button class="btn-refresh" id="btn-refresh">🔄 刷新状态</button>
+  </div>
+
+  <script>
+    // 模拟 API 健康数据（实际应该从后端 API 获取）
+    const mockHealthData = [
+      {
+        slug: "qwen-plus",
+        name: "通义千问 Plus",
+        provider: "阿里云百炼",
+        status: "operational",
+        uptime: 99.97,
+        latency_ms: 245,
+        error_rate: 0.12,
+        last_checked: new Date().toISOString()
+      },
+      {
+        slug: "deepseek-v3",
+        name: "DeepSeek-V3",
+        provider: "深度求索",
+        status: "operational",
+        uptime: 99.95,
+        latency_ms: 189,
+        error_rate: 0.08,
+        last_checked: new Date().toISOString()
+      },
+      {
+        slug: "ernie-4.0",
+        name: "文心一言 4.0",
+        provider: "百度智能云",
+        status: "degraded",
+        uptime: 98.23,
+        latency_ms: 1250,
+        error_rate: 2.34,
+        last_checked: new Date().toISOString()
+      }
+    ];
+
+    // DOM 元素
+    const healthOverview = document.getElementById('health-overview');
+    const totalApisEl = document.getElementById('total-apis');
+    const operationalCountEl = document.getElementById('operational-count');
+    const degradedCountEl = document.getElementById('degraded-count');
+    const outageCountEl = document.getElementById('outage-count');
+    const apiHealthGrid = document.getElementById('api-health-grid');
+    const btnRefresh = document.getElementById('btn-refresh');
+
+    // 渲染健康数据
+    function renderHealthData(data) {
+      // 更新总览
+      totalApisEl.textContent = data.length;
+      const operationalCount = data.filter(api => api.status === 'operational').length;
+      const degradedCount = data.filter(api => api.status === 'degraded').length;
+      const outageCount = data.filter(api => api.status === 'outage').length;
+      operationalCountEl.textContent = operationalCount;
+      degradedCountEl.textContent = degradedCount;
+      outageCountEl.textContent = outageCount;
+
+      // 更新详细列表
+      apiHealthGrid.innerHTML = data.map(api => `
+        <div class="api-health-card">
+          <div>
+            <div class="api-name">${api.name}</div>
+            <div class="api-provider">${api.provider}</div>
+          </div>
+          <div class="health-status">
+            <span class="status-badge status-${api.status}">
+              ${api.status === 'operational' ? '✅ 正常' : api.status === 'degraded' ? '⚠️ 下降' : '❌ 中断'}
+            </span>
+          </div>
+          <div class="health-metric">
+            <div class="metric-label">可用性</div>
+            <div class="metric-value ${api.uptime >= 99.9 ? 'good' : api.uptime >= 99.0 ? 'warning' : 'error'}">${api.uptime}%</div>
+            <div class="uptime-bar">
+              <div class="uptime-fill ${api.status}" style="width: ${api.uptime}%"></div>
+            </div>
+          </div>
+          <div class="health-metric">
+            <div class="metric-label">延迟</div>
+            <div class="metric-value ${api.latency_ms < 500 ? 'good' : api.latency_ms < 1000 ? 'warning' : 'error'}">${api.latency_ms}ms</div>
+          </div>
+          <div class="health-metric">
+            <div class="metric-label">错误率</div>
+            <div class="metric-value ${api.error_rate < 1.0 ? 'good' : api.error_rate < 5.0 ? 'warning' : 'error'}">${api.error_rate}%</div>
+          </div>
+          <div class="last-checked">最后检查: ${new Date(api.last_checked).toLocaleString('zh-CN')}</div>
+        </div>
+      `).join('');
+    }
+
+    // 刷新健康数据
+    async function refreshHealthData() {
+      btnRefresh.disabled = true;
+      btnRefresh.textContent = '⏳ 刷新中...';
+      apiHealthGrid.innerHTML = '<div class="loading">加载中...</div>';
+
+      // 模拟 API 调用延迟
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // 实际应该从后端获取真实数据
+      // const { data, error } = await supabase.functions.invoke('api-health');
+      // if (error) throw error;
+      // renderHealthData(data);
+
+      // 使用模拟数据
+      renderHealthData(mockHealthData);
+
+      btnRefresh.disabled = false;
+      btnRefresh.textContent = '🔄 刷新状态';
+    }
+
+    // 事件监听
+    btnRefresh.addEventListener('click', refreshHealthData);
+
+    // 页面加载时初始化
+    (async () => {
+      await refreshHealthData();
+      // 每 30 秒自动刷新
+      setInterval(refreshHealthData, 30000);
+    })();
+  </script>
+</body>
+</html>

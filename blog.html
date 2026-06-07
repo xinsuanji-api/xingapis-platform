@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>技术博客 - 星算纪 API 平台</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, sans-serif; background: linear-gradient(135deg, #0a1628 0%, #0d2137 100%); color: #e2e8f0; min-height: 100vh; }
+    .header { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0, 229, 255, 0.2); padding: 1.5rem 3rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .logo { font-size: 1.8rem; font-weight: 700; background: linear-gradient(135deg, #00e5ff, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .nav-links { display: flex; gap: 2rem; align-items: center; }
+    .nav-link { color: #94a3b8; text-decoration: none; transition: all 0.3s; font-size: 0.95rem; }
+    .nav-link:hover { color: #00e5ff; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 3rem 2rem; }
+    .page-title { font-size: 2.5rem; color: #00e5ff; margin-bottom: 0.5rem; }
+    .page-subtitle { color: #94a3b8; font-size: 1.1rem; margin-bottom: 3rem; }
+    .blog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; margin-bottom: 3rem; }
+    .blog-card { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 16px; padding: 2rem; transition: all 0.3s; cursor: pointer; }
+    .blog-card:hover { border-color: #00e5ff; transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0, 229, 255, 0.2); }
+    .blog-meta { display: flex; gap: 1rem; color: #64748b; font-size: 0.85rem; margin-bottom: 1rem; }
+    .blog-title { font-size: 1.3rem; color: #00e5ff; margin-bottom: 0.8rem; line-height: 1.4; }
+    .blog-excerpt { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.2rem; }
+    .blog-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .blog-tag { background: rgba(0, 229, 255, 0.1); color: #00e5ff; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; }
+    .featured-post { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 16px; padding: 3rem; margin-bottom: 3rem; }
+    .featured-badge { display: inline-block; background: linear-gradient(135deg, #00e5ff, #7c3aed); color: #0a1628; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-bottom: 1rem; }
+    .featured-title { font-size: 2rem; color: #00e5ff; margin-bottom: 1rem; line-height: 1.4; }
+    .featured-excerpt { color: #94a3b8; font-size: 1.05rem; line-height: 1.8; margin-bottom: 1.5rem; }
+    .read-more { color: #7c3aed; text-decoration: none; font-size: 0.95rem; transition: all 0.3s; }
+    .read-more:hover { color: #00e5ff; }
+    .newsletter-section { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 16px; padding: 3rem; text-align: center; }
+    .newsletter-title { font-size: 1.8rem; color: #7c3aed; margin-bottom: 1rem; }
+    .newsletter-desc { color: #94a3b8; font-size: 1rem; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto; }
+    .newsletter-form { display: flex; gap: 1rem; max-width: 500px; margin: 0 auto; }
+    .newsletter-input { flex: 1; padding: 0.8rem 1.2rem; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 8px; color: #e2e8f0; font-size: 0.95rem; }
+    .newsletter-btn { padding: 0.8rem 2rem; background: linear-gradient(135deg, #00e5ff, #7c3aed); color: #0a1628; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+    .newsletter-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0, 229, 255, 0.3); }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="logo">🚀 星算纪 API 平台</div>
+    <nav class="nav-links">
+      <a href="/" class="nav-link">首页</a>
+      <a href="/docs" class="nav-link">API 文档</a>
+      <a href="/pricing" class="nav-link">价格</a>
+      <a href="/console.html" class="nav-link">控制台</a>
+      <a href="/blog.html" class="nav-link" style="color: #00e5ff;">博客</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h1 class="page-title">📝 技术博客</h1>
+    <p class="page-subtitle">深度技术文章、最佳实践、行业洞察</p>
+
+    <div class="featured-post">
+      <div class="featured-badge">🏆 精选文章</div>
+      <h2 class="featured-title">大模型 API 转发：架构设计与性能优化</h2>
+      <p class="featured-excerpt">
+        本文深入探讨了星算纪 API 平台的架构设计，包括智能路由、缓存策略、速率限制、错误处理等核心技术。
+        我们将分享如何支撑 10,000+ QPS、99.99% 可用性、平均延迟 < 500ms 的实战经验。
+        无论您是 API 开发者、架构师还是技术管理者，都能从本文中获得宝贵的实践经验。
+      </p>
+      <div class="blog-meta">
+        <span>👤 技术团队</span>
+        <span>📅 2026-06-05</span>
+        <span>⏱️ 25 分钟阅读</span>
+        <span>👁️ 12.3K 阅读</span>
+      </div>
+      <a href="#" class="read-more">阅读全文 →</a>
+    </div>
+
+    <div class="blog-grid">
+      <div class="blog-card">
+        <div class="blog-meta">
+          <span>📅 2026-06-03</span>
+          <span>⏱️ 12 分钟阅读</span>
+        </div>
+        <h3 class="blog-title">如何选择最适合您业务的 AI 模型？</h3>
+        <p class="blog-excerpt">
+            Qwen3.7、DeepSeek-R1、文心一言 4.0... 这么多模型，到底选哪个？
+            本文从性能、价格、适用场景等维度，帮您做出最佳选择。
+        </p>
+        <div class="blog-tags">
+          <span class="blog-tag">模型选择</span>
+          <span class="blog-tag">最佳实践</span>
+        </div>
+      </div>
+
+      <div class="blog-card">
+        <div class="blog-meta">
+          <span>📅 2026-05-28</span>
+          <span>⏱️ 18 分钟阅读</span>
+        </div>
+        <h3 class="blog-title">API 成本控制：10 个实用技巧</h3>
+        <p class="blog-excerpt">
+            大模型 API 调用成本高？本文分享 10 个经过验证的成本优化技巧，
+            帮助您降低 30-50% 的 API 成本，同时不牺牲性能。
+        </p>
+        <div class="blog-tags">
+          <span class="blog-tag">成本控制</span>
+          <span class="blog-tag">优化</span>
+        </div>
+      </div>
+
+      <div class="blog-card">
+        <div class="blog-meta">
+          <span>📅 2026-05-20</span>
+          <span>⏱️ 15 分钟阅读</span>
+        </div>
+        <h3 class="blog-title">流式响应：原理、实现与性能优化</h3>
+        <p class="blog-excerpt">
+            流式响应（Streaming）是大模型 API 的核心特性。本文深入讲解流式响应的原理、
+            SSE 实现、客户端处理、性能优化技巧。
+        </p>
+        <div class="blog-tags">
+          <span class="blog-tag">流式响应</span>
+          <span class="blog-tag">SSE</span>
+        </div>
+      </div>
+
+      <div class="blog-card">
+        <div class="blog-meta">
+          <span>📅 2026-05-15</span>
+          <span>⏱️ 20 分钟阅读</span>
+        </div>
+        <h3 class="blog-title">多模态 AI：图像、语音、视频处理实战</h3>
+        <p class="blog-excerpt">
+            除了文本，AI 还能处理图像、语音、视频。本文实战演示如何使用星算纪 API
+            实现多模态 AI 应用，包含完整代码示例。
+        </p>
+        <div class="blog-tags">
+          <span class="blog-tag">多模态</span>
+          <span class="blog-tag">图像处理</span>
+        </div>
+      </div>
+
+      <div class="blog-card">
+        <div class="blog-meta">
+          <span>📅 2026-05-08</span>
+          <span>⏱️ 22 分钟阅读</span>
+        </div>
+        <h3 class="blog-title">API 安全：防范攻击、保护密钥、审计日志</h3>
+        <p class="blog-excerpt">
+            API Key 泄露、DDoS 攻击、恶意调用... 如何保障 API 安全？
+            本文分享星算纪的安全实践：加密存储、速率限制、审计日志、异常检测。
+        </p>
+        <div class="blog-tags">
+          <span class="blog-tag">安全</span>
+          <span class="blog-tag">最佳实践</span>
+        </div>
+      </div>
+
+      <div class="blog-card">
+        <div class="blog-meta">
+          <span>📅 2026-04-30</span>
+          <span>⏱️ 30 分钟阅读</span>
+        </div>
+        <h3 class="blog-title">从零构建 AI SaaS：技术选型、架构设计、上线运维</h3>
+        <p class="blog-excerpt">
+            想基于大模型 API 构建自己的 SaaS 产品？本文手把手教您：技术选型、
+            架构设计、数据库设计、支付集成、部署运维，附完整代码。
+        </p>
+        <div class="blog-tags">
+          <span class="blog-tag">SaaS</span>
+          <span class="blog-tag">创业</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="newsletter-section">
+      <h2 class="newsletter-title">📧 订阅技术通讯</h2>
+      <p class="newsletter-desc">
+        每周精选技术文章、最佳实践、行业洞察，直接发送到您的邮箱。已有 50,000+ 开发者订阅。
+      </p>
+      <form class="newsletter-form" onsubmit="subscribeNewsletter(event)">
+        <input type="email" class="newsletter-input" placeholder="输入您的邮箱..." required="">
+        <button type="submit" class="newsletter-btn">订阅</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // 博客卡片点击事件
+    document.querySelectorAll('.blog-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const title = card.querySelector('.blog-title').textContent;
+        alert(`查看文章: ${title}\n（实际应跳转到博客详情页）`);
+      });
+    });
+
+    // 精选文章点击事件
+    document.querySelector('.featured-post .read-more').addEventListener('click', (e) => {
+      e.preventDefault();
+      const title = document.querySelector('.featured-title').textContent;
+      alert(`查看精选文章: ${title}\n（实际应跳转到博客详情页）`);
+    });
+
+    // 订阅通讯
+    function subscribeNewsletter(event) {
+      event.preventDefault();
+      const email = event.target.querySelector('.newsletter-input').value;
+      alert(`订阅成功！\n邮箱：${email}\n我们会在每周一发送技术通讯到您的邮箱。`);
+      event.target.reset();
+    }
+  </script>
+</body>
+</html>

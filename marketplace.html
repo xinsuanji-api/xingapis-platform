@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Marketplace - 星算纪 API 平台</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, sans-serif; background: linear-gradient(135deg, #0a1628 0%, #0d2137 100%); color: #e2e8f0; min-height: 100vh; }
+    .header { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0, 229, 255, 0.2); padding: 1.5rem 3rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .logo { font-size: 1.8rem; font-weight: 700; background: linear-gradient(135deg, #00e5ff, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .nav-links { display: flex; gap: 2rem; align-items: center; }
+    .nav-link { color: #94a3b8; text-decoration: none; transition: all 0.3s; font-size: 0.95rem; }
+    .nav-link:hover { color: #00e5ff; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 3rem 2rem; }
+    .page-title { font-size: 2.5rem; color: #00e5ff; margin-bottom: 0.5rem; }
+    .page-subtitle { color: #94a3b8; font-size: 1.1rem; margin-bottom: 3rem; }
+    .marketplace-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 3rem; }
+    .api-card { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 16px; padding: 2rem; transition: all 0.3s; cursor: pointer; }
+    .api-card:hover { border-color: #00e5ff; transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0, 229, 255, 0.2); }
+    .api-card-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem; }
+    .api-icon { font-size: 2.5rem; }
+    .api-name { font-size: 1.3rem; color: #00e5ff; }
+    .api-creator { color: #64748b; font-size: 0.85rem; margin-top: 0.3rem; }
+    .api-desc { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.2rem; }
+    .api-meta { display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid rgba(0, 229, 255, 0.1); }
+    .api-price { color: #7c3aed; font-size: 1.1rem; font-weight: 600; }
+    .api-rating { color: #fbbf24; font-size: 0.9rem; }
+    .api-tags { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+    .api-tag { background: rgba(0, 229, 255, 0.1); color: #00e5ff; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; }
+    .filters { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+    .filter-btn { padding: 0.6rem 1.2rem; background: rgba(0, 229, 255, 0.1); color: #00e5ff; border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 20px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; }
+    .filter-btn:hover, .filter-btn.active { background: rgba(0, 229, 255, 0.2); border-color: #00e5ff; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="logo">🚀 星算纪 API 平台</div>
+    <nav class="nav-links">
+      <a href="/" class="nav-link">首页</a>
+      <a href="/docs" class="nav-link">API 文档</a>
+      <a href="/pricing" class="nav-link">价格</a>
+      <a href="/console.html" class="nav-link">控制台</a>
+      <a href="/marketplace.html" class="nav-link" style="color: #00e5ff;">Marketplace</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h1 class="page-title">🛒 API Marketplace</h1>
+    <p class="page-subtitle">发现和集成第三方 API，一键部署到您的应用</p>
+
+    <div class="filters">
+      <button class="filter-btn active">全部</button>
+      <button class="filter-btn">AI 模型</button>
+      <button class="filter-btn">图像处理</button>
+      <button class="filter-btn">语音识别</button>
+      <button class="filter-btn">数据分析</button>
+      <button class="filter-btn">免费</button>
+      <button class="filter-btn">热门</button>
+    </div>
+
+    <div class="marketplace-grid">
+      <div class="api-card">
+        <div class="api-card-header">
+          <div class="api-icon">🤖</div>
+          <div>
+            <div class="api-name">GPT-5 增强版</div>
+            <div class="api-creator">由 OpenAI 官方提供</div>
+          </div>
+        </div>
+        <div class="api-desc">最新的 GPT-5 模型，支持 128K 上下文，准确率提升 30%。</div>
+        <div class="api-tags">
+          <span class="api-tag">AI 模型</span>
+          <span class="api-tag">文本生成</span>
+          <span class="api-tag">热门</span>
+        </div>
+        <div class="api-meta">
+          <div class="api-price">$0.008 / 1K tokens</div>
+          <div class="api-rating">⭐ 4.9 (2.3K 评价)</div>
+        </div>
+      </div>
+
+      <div class="api-card">
+        <div class="api-card-header">
+          <div class="api-icon">🖼️</div>
+          <div>
+            <div class="api-name">DALL-E 4 图像生成</div>
+            <div class="api-creator">由 Midjourney 提供</div>
+          </div>
+        </div>
+        <div class="api-desc">生成高质量 AI 图像，支持 8K 分辨率，20 种艺术风格。</div>
+        <div class="api-tags">
+          <span class="api-tag">图像处理</span>
+          <span class="api-tag">AI 绘画</span>
+        </div>
+        <div class="api-meta">
+          <div class="api-price">$0.04 / 张</div>
+          <div class="api-rating">⭐ 4.8 (1.8K 评价)</div>
+        </div>
+      </div>
+
+      <div class="api-card">
+        <div class="api-card-header">
+          <div class="api-icon">🎤</div>
+          <div>
+            <div class="api-name">Whisper Pro 语音识别</div>
+            <div class="api-creator">由 OpenAI 提供</div>
+          </div>
+        </div>
+        <div class="api-desc">支持 98 种语言，准确率 99.5%，实时转录，免费试用 60 分钟。</div>
+        <div class="api-tags">
+          <span class="api-tag">语音识别</span>
+          <span class="api-tag">免费试用</span>
+          <span class="api-tag">热门</span>
+        </div>
+        <div class="api-meta">
+          <div class="api-price">$0.006 / 分钟</div>
+          <div class="api-rating">⭐ 4.7 (1.5K 评价)</div>
+        </div>
+      </div>
+
+      <div class="api-card">
+        <div class="api-card-header">
+          <div class="api-icon">📊</div>
+          <div>
+            <div class="api-name">数据分析引擎 Pro</div>
+            <div class="api-creator">由 DataRobot 提供</div>
+          </div>
+        </div>
+        <div class="api-desc">自动化数据分析，支持预测建模、异常检测、可视化报告。</div>
+        <div class="api-tags">
+          <span class="api-tag">数据分析</span>
+          <span class="api-tag">机器学习</span>
+        </div>
+        <div class="api-meta">
+          <div class="api-price">$0.12 / 次分析</div>
+          <div class="api-rating">⭐ 4.6 (890 评价)</div>
+        </div>
+      </div>
+
+      <div class="api-card">
+        <div class="api-card-header">
+          <div class="api-icon">🌐</div>
+          <div>
+            <div class="api-name">实时翻译 API</div>
+            <div class="api-creator">由 Google 提供</div>
+          </div>
+        </div>
+        <div class="api-desc">支持 133 种语言，实时翻译，准确度业界领先。</div>
+        <div class="api-tags">
+          <span class="api-tag">翻译</span>
+          <span class="api-tag">免费</span>
+        </div>
+        <div class="api-meta">
+          <div class="api-price">免费（限 10K chars/天）</div>
+          <div class="api-rating">⭐ 4.5 (3.2K 评价)</div>
+        </div>
+      </div>
+
+      <div class="api-card">
+        <div class="api-card-header">
+          <div class="api-icon">🔍</div>
+          <div>
+            <div class="api-name">OCR Pro 文字识别</div>
+            <div class="api-creator">由百度提供</div>
+          </div>
+        </div>
+        <div class="api-desc">支持手写、印刷体、表格识别，准确率 99%，免费试用 1000 次。</div>
+        <div class="api-tags">
+          <span class="api-tag">OCR</span>
+          <span class="api-tag">图像识别</span>
+          <span class="api-tag">免费试用</span>
+        </div>
+        <div class="api-meta">
+          <div class="api-price">¥0.003 / 次</div>
+          <div class="api-rating">⭐ 4.7 (2.1K 评价)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 筛选功能
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        // 简化：实际应该调用 API 进行筛选
+        console.log('筛选:', btn.textContent);
+      });
+    });
+
+    // API 卡片点击事件
+    document.querySelectorAll('.api-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const apiName = card.querySelector('.api-name').textContent;
+        alert(`查看 API 详情: ${apiName}\n（实际应跳转到 API 详情页）`);
+      });
+    });
+  </script>
+</body>
+</html>

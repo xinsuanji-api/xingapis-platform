@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星算纪 | AI 大模型聚合平台</title>
+    <style>
+        :root {
+            --ocean-deep: #0a1628;
+            --ocean-mid: #0d2137;
+            --cyan-glow: #00e5ff;
+            --purple-dream: #7c3aed;
+            --star-yellow: #fbbf24;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, sans-serif;
+            background: var(--ocean-deep);
+            color: #ffffff;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* 星空海洋画布 */
+        #starry-ocean {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+
+        /* 星光层 */
+        .stars-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background: #ffffff;
+            border-radius: 50%;
+            animation: twinkle var(--duration) ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: var(--opacity-min); transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+
+        /* 游动的鱼 */
+        .fish-container {
+            position: fixed;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .fish {
+            position: absolute;
+            animation: swim var(--swim-duration) linear infinite;
+            opacity: 0.6;
+        }
+
+        .fish-body {
+            width: var(--fish-size);
+            height: calc(var(--fish-size) * 0.5);
+            background: linear-gradient(135deg, var(--fish-color-1), var(--fish-color-2));
+            border-radius: 50% 50% 50% 0;
+            position: relative;
+            filter: drop-shadow(0 0 10px var(--fish-glow));
+        }
+
+        .fish-tail {
+            position: absolute;
+            right: -10px;
+            top: 20%;
+            width: 0;
+            height: 0;
+            border-left: 15px solid var(--fish-color-2);
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            animation: tailWag 0.8s ease-in-out infinite;
+        }
+
+        @keyframes tailWag {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(20deg); }
+        }
+
+        .fish-eye {
+            position: absolute;
+            left: 8px;
+            top: 30%;
+            width: 6px;
+            height: 6px;
+            background: #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 0 5px #fff;
+        }
+
+        @keyframes swim {
+            0% {
+                transform: translate(0, 0) rotateY(0deg);
+            }
+            25% {
+                transform: translate(200px, -50px) rotateY(0deg);
+            }
+            50% {
+                transform: translate(400px, 30px) rotateY(0deg);
+            }
+            75% {
+                transform: translate(600px, -40px) rotateY(0deg);
+            }
+            100% {
+                transform: translate(1000px, 0) rotateY(0deg);
+            }
+        }
+
+        /* 气泡 */
+        .bubble {
+            position: fixed;
+            bottom: -50px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(0, 229, 255, 0.3), rgba(0, 229, 255, 0.05));
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            animation: bubbleRise var(--rise-duration) ease-in infinite;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        @keyframes bubbleRise {
+            0% {
+                transform: translateX(0) translateY(0) scale(1);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateX(var(--drift)) translateY(-110vh) scale(0.3);
+                opacity: 0;
+            }
+        }
+
+        /* 导航 */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: rgba(10, 22, 40, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .logo span {
+            background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { filter: drop-shadow(0 0 5px var(--cyan-glow)); }
+            50% { filter: drop-shadow(0 0 25px var(--cyan-glow)); }
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--cyan-glow);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            color: var(--cyan-glow);
+        }
+
+        .btn {
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream));
+            color: #000;
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        /* Hero */
+        .hero {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 8rem 5% 5rem;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 1.5rem;
+            background: rgba(0, 229, 255, 0.08);
+            border: 1px solid rgba(0, 229, 255, 0.25);
+            border-radius: 100px;
+            color: var(--cyan-glow);
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 2.5rem;
+            animation: fadeInUp 1s ease;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: pulseDot 2s ease-in-out infinite;
+            box-shadow: 0 0 10px #00ff88;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.7; }
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 900;
+            line-height: 1.05;
+            letter-spacing: -3px;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease 0.2s backwards;
+        }
+
+        .hero h1 .gradient-text {
+            background: linear-gradient(135deg, var(--cyan-glow) 0%, var(--purple-dream) 50%, var(--star-yellow) 100%);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientFlow 5s ease infinite;
+        }
+
+        @keyframes gradientFlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.6);
+            max-width: 650px;
+            margin-bottom: 3rem;
+            animation: fadeInUp 1s ease 0.4s backwards;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1.25rem;
+            animation: fadeInUp 1s ease 0.6s backwards;
+        }
+
+        .btn-lg {
+            padding: 1rem 2.5rem;
+            font-size: 1.05rem;
+            border-radius: 12px;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 统计数字 */
+        .stats {
+            display: flex;
+            gap: 4rem;
+            margin-top: 5rem;
+            animation: fadeInUp 1s ease 0.8s backwards;
+        }
+
+        .stat-item {
+            text-align: center;
+            position: relative;
+        }
+
+        .stat-item::after {
+            content: '';
+            position: absolute;
+            right: -2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1px;
+            height: 40px;
+            background: rgba(0, 229, 255, 0.2);
+        }
+
+        .stat-item:last-child::after { display: none; }
+
+        .stat-num {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--cyan-glow);
+            font-variant-numeric: tabular-nums;
+            text-shadow: 0 0 30px rgba(0, 229, 255, 0.5);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 0.5rem;
+        }
+
+        /* 特性区块 */
+        .features {
+            position: relative;
+            z-index: 10;
+            padding: 10rem 5%;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+
+        .section-header h2 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .section-header h2 .gradient-text {
+            background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-header p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: rgba(13, 33, 55, 0.8);
+            border: 1px solid rgba(0, 229, 255, 0.15);
+            border-radius: 20px;
+            padding: 2.5rem;
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--cyan-glow), var(--purple-dream));
+            transform: translateX(-100%);
+            transition: transform 0.4s;
+        }
+
+        .feature-card:hover::before {
+            transform: translateX(0);
+        }
+
+        .feature-card:hover {
+            border-color: rgba(0, 229, 255, 0.4);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0, 229, 255, 0.15);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.15), rgba(124, 58, 237, 0.15));
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            animation: iconPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes iconPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(0, 229, 255, 0.4); }
+        }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+
+        .feature-card p {
+            color: rgba(255, 255, 255, 0.5);
+            line-height: 1.7;
+        }
+
+        /* CTA */
+        .cta {
+            position: relative;
+            z-index: 10;
+            padding: 10rem 5%;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta h2 .gradient-text {
+            background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cta p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 3rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.25rem;
+            justify-content: center;
+        }
+
+        footer {
+            position: relative;
+            z-index: 10;
+            padding: 3rem 5%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(0, 229, 255, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .stats { flex-direction: column; gap: 2rem; }
+            .stat-item::after { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 星空海洋画布 -->
+    <canvas id="starry-ocean"></canvas>
+
+    <!-- 星光层 -->
+    <div class="stars-layer" id="stars-layer"></div>
+
+    <!-- 游动的鱼 -->
+    <div class="fish-container" id="fish-container"></div>
+
+    <!-- 气泡 -->
+    <div id="bubbles-container"></div>
+
+    <nav>
+        <div class="logo">星算<span>纪</span></div>
+        <ul class="nav-links">
+            <li><a href="/">首页</a></li>
+            <li><a href="/apis">API</a></li>
+            <li><a href="/models">模型</a></li>
+            <li><a href="/pricing">价格</a></li>
+            <li><a href="/docs">文档</a></li>
+        </ul>
+        <div>
+            <a href="/login" class="btn btn-ghost">登录</a>
+            <a href="/register" class="btn btn-primary">免费注册</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-badge">
+            <span class="status-dot"></span>
+            <span>200+ 模型 · 99.9% 可用性 · 实时运行</span>
+        </div>
+        <h1>
+            在<span class="gradient-text">星空海洋</span><br>
+            中遨游 AI
+        </h1>
+        <p>
+            一个 API Key，调用全球顶尖大模型。<br>
+            极速响应，成本更低，让 AI 为你所用。
+        </p>
+        <div class="hero-buttons">
+            <a href="/register" class="btn btn-primary btn-lg">免费开始 →</a>
+            <a href="/docs" class="btn btn-ghost btn-lg">查看文档</a>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-num" data-target="200">0</div>
+                <div class="stat-label">AI 模型</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num" data-target="50">0</div>
+                <div class="stat-label">API 服务</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num" data-target="99.9">0</div>
+                <div class="stat-label">可用性 %</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num" data-target="100">0</div>
+                <div class="stat-label">响应 &lt;ms</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="section-header">
+            <h2>为什么选择 <span class="gradient-text">星算纪</span></h2>
+            <p>为开发者打造的 AI 聚合服务</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>极速响应</h3>
+                <p>全球 CDN 加速，平均响应 &lt;100ms，体验如本地调用般丝滑</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔗</div>
+                <h3>统一接口</h3>
+                <p>一个 API Key 调用所有模型，OpenAI 兼容协议，无缝迁移</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💎</div>
+                <h3>成本更低</h3>
+                <p>比官方价格低至 60%，按量计费无套餐束缚</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3>企业级稳定</h3>
+                <p>99.9% SLA 保障，多节点容灾备份</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>实时监控</h3>
+                <p>调用统计、费用分析、性能监控，一目了然</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💬</div>
+                <h3>技术支持</h3>
+                <p>7×24 技术支持，专属技术顾问</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <h2>准备好<span class="gradient-text">开始</span>了吗？</h2>
+        <p>免费注册，立即获得 100 次调用额度</p>
+        <div class="cta-buttons">
+            <a href="/register" class="btn btn-primary btn-lg">免费注册</a>
+            <a href="/contact" class="btn btn-ghost btn-lg">联系销售</a>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2024 星算纪 · 一站式 AI API 聚合平台</p>
+    </footer>
+
+    <script>
+        // ============ 星空海洋画布 ============
+        const canvas = document.getElementById('starry-ocean');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+        let waves = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // 星星
+        class Star {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height * 0.7; // 上半部分星空
+                this.size = Math.random() * 2 + 0.5;
+                this.opacity = Math.random() * 0.8 + 0.2;
+                this.twinkleSpeed = Math.random() * 0.02 + 0.01;
+                this.twinklePhase = Math.random() * Math.PI * 2;
+            }
+            update() {
+                this.twinklePhase += this.twinkleSpeed;
+                this.opacity = 0.3 + 0.7 * Math.abs(Math.sin(this.twinklePhase));
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.fill();
+
+                // 星光
+                if (this.size > 1.2) {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity * 0.1})`;
+                    ctx.fill();
+                }
+            }
+        }
+
+        // 海洋波浪
+        class Wave {
+            constructor(y, amplitude, frequency, speed, color) {
+                this.y = y;
+                this.amplitude = amplitude;
+                this.frequency = frequency;
+                this.speed = speed;
+                this.color = color;
+                this.phase = Math.random() * Math.PI * 2;
+            }
+            draw(time) {
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height);
+                for (let x = 0; x <= canvas.width; x += 5) {
+                    const y = this.y + Math.sin(x * this.frequency + time * this.speed + this.phase) * this.amplitude;
+                    ctx.lineTo(x, y);
+                }
+                ctx.lineTo(canvas.width, canvas.height);
+                ctx.closePath();
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+        }
+
+        // 初始化
+        for (let i = 0; i < 200; i++) stars.push(new Star());
+
+        waves.push(new Wave(canvas.height * 0.75, 30, 0.005, 0.02, 'rgba(0, 229, 255, 0.08)'));
+        waves.push(new Wave(canvas.height * 0.80, 25, 0.004, 0.015, 'rgba(124, 58, 237, 0.06)'));
+        waves.push(new Wave(canvas.height * 0.85, 20, 0.006, 0.025, 'rgba(0, 229, 255, 0.05)'));
+        waves.push(new Wave(canvas.height * 0.90, 15, 0.003, 0.018, 'rgba(124, 58, 237, 0.04)'));
+
+        let time = 0;
+        function animateOcean() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 绘制深蓝渐变背景（海洋+星空）
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#0a1628');  // 深蓝（星空）
+            gradient.addColorStop(0.5, '#0d2137');  // 中蓝
+            gradient.addColorStop(1, '#0a1628');  // 深蓝（海洋）
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 更新和绘制星星
+            stars.forEach(star => {
+                star.update();
+                star.draw();
+            });
+
+            // 绘制波浪
+            time += 1;
+            waves.forEach(wave => wave.draw(time));
+
+            requestAnimationFrame(animateOcean);
+        }
+        animateOcean();
+
+        // ============ 星光层 ============
+        const starsLayer = document.getElementById('stars-layer');
+        for (let i = 0; i < 50; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 70 + '%';
+            star.style.width = Math.random() * 3 + 1 + 'px';
+            star.style.height = star.style.width;
+            star.style.setProperty('--duration', Math.random() * 3 + 2 + 's');
+            star.style.setProperty('--opacity-min', Math.random() * 0.3 + 0.2);
+            starsLayer.appendChild(star);
+        }
+
+        // ============ 游动的鱼 ============
+        const fishContainer = document.getElementById('fish-container');
+        
+        function createFish() {
+            const fish = document.createElement('div');
+            fish.className = 'fish';
+            
+            const size = Math.random() * 30 + 20;
+            const colors = [
+                ['#00e5ff', '#00b8d4'],
+                ['#7c3aed', '#5b21b6'],
+                ['#fbbf24', '#f59e0b'],
+                ['#06b6d4', '#0891b2'],
+                ['#a78bfa', '#8b5cf6']
+            ];
+            const colorPair = colors[Math.floor(Math.random() * colors.length)];
+            
+            fish.style.setProperty('--fish-size', size + 'px');
+            fish.style.setProperty('--fish-color-1', colorPair[0]);
+            fish.style.setProperty('--fish-color-2', colorPair[1]);
+            fish.style.setProperty('--fish-glow', colorPair[0]);
+            fish.style.setProperty('--swim-duration', Math.random() * 15 + 20 + 's');
+            fish.style.left = '-100px';
+            fish.style.top = Math.random() * 80 + 10 + '%';
+            fish.style.animationDelay = Math.random() * 10 + 's';
+            
+            fish.innerHTML = `
+                <div class="fish-body">
+                    <div class="fish-eye"></div>
+                    <div class="fish-tail"></div>
+                </div>
+            `;
+            
+            fishContainer.appendChild(fish);
+            
+            // 移除鱼（动画结束后）
+            setTimeout(() => {
+                if (fish.parentNode) fish.parentNode.removeChild(fish);
+            }, 35000);
+        }
+
+        // 定期创建鱼
+        setInterval(createFish, 3000);
+        // 初始创建几条
+        for (let i = 0; i < 5; i++) {
+            setTimeout(createFish, i * 1000);
+        }
+
+        // ============ 气泡 ============
+        const bubblesContainer = document.getElementById('bubbles-container');
+        
+        function createBubble() {
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            
+            const size = Math.random() * 20 + 5;
+            bubble.style.width = size + 'px';
+            bubble.style.height = size + 'px';
+            bubble.style.left = Math.random() * 100 + '%';
+            bubble.style.setProperty('--rise-duration', Math.random() * 8 + 6 + 's');
+            bubble.style.setProperty('--drift', (Math.random() - 0.5) * 100 + 'px');
+            
+            bubblesContainer.appendChild(bubble);
+            
+            setTimeout(() => {
+                if (bubble.parentNode) bubble.parentNode.removeChild(bubble);
+            }, 15000);
+        }
+
+        setInterval(createBubble, 2000);
+        // 初始气泡
+        for (let i = 0; i < 8; i++) {
+            setTimeout(createBubble, i * 500);
+        }
+
+        // ============ 数字滚动 ============
+        const counters = document.querySelectorAll('.stat-num');
+        const animateCounters = () => {
+            counters.forEach(counter => {
+                const target = parseFloat(counter.getAttribute('data-target'));
+                const isDecimal = target % 1 !== 0;
+                const duration = 2000;
+                const step = target / (duration / 16);
+                let current = 0;
+
+                const timer = setInterval(() => {
+                    current += step;
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(timer);
+                    }
+                    counter.textContent = isDecimal ? current.toFixed(1) : Math.floor(current);
+                }, 16);
+            });
+        };
+
+        setTimeout(animateCounters, 500);
+    </script>
+</body>
+</html>
