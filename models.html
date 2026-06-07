@@ -4,98 +4,346 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>模型列表 - 星算纪</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
     <style>
-        :root { --ocean-deep: #0a1628; --ocean-mid: #0d2137; --cyan-glow: #00e5ff; --purple-dream: #7c3aed; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'SF Pro Display', -apple-system, sans-serif; background: var(--ocean-deep); color: #ffffff; line-height: 1.6; }
-        nav { position: fixed; top: 0; left: 0; right: 0; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; z-index: 100; background: rgba(10, 22, 40, 0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0, 229, 255, 0.2); }
-        .logo { font-size: 1.6rem; font-weight: 800; }
-        .logo span { background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .nav-links { display: flex; gap: 2rem; list-style: none; }
-        .nav-links a { color: rgba(255, 255, 255, 0.6); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.3s; }
-        .nav-links a:hover { color: var(--cyan-glow); }
-        .btn { padding: 0.6rem 1.5rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; text-decoration: none; transition: all 0.3s; cursor: pointer; border: none; }
-        .btn-ghost { background: transparent; color: rgba(255, 255, 255, 0.6); }
-        .btn-primary { background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream)); color: #000; }
-        .hero { padding: 10rem 5% 5rem; text-align: center; }
-        .hero h1 { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 800; margin-bottom: 1rem; }
-        .hero h1 .gradient-text { background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .hero p { font-size: 1.2rem; color: rgba(255, 255, 255, 0.5); max-width: 600px; margin: 0 auto; }
-        .content { padding: 5rem 5%; max-width: 1200px; margin: 0 auto; }
-        .model-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
-        .model-card { background: rgba(13, 33, 55, 0.8); border: 1px solid rgba(0, 229, 255, 0.15); border-radius: 16px; padding: 2rem; transition: all 0.3s; }
-        .model-card:hover { border-color: rgba(0, 229, 255, 0.4); transform: translateY(-5px); }
-        .model-card h3 { color: var(--cyan-glow); font-size: 1.2rem; margin-bottom: 0.5rem; }
-        .model-card .provider { color: var(--purple-dream); font-size: 0.9rem; margin-bottom: 1rem; }
-        .model-card p { color: rgba(255, 255, 255, 0.6); font-size: 0.95rem; }
-        .model-card .price { color: #fbbf24; font-size: 0.9rem; margin-top: 1rem; }
-        footer { padding: 3rem 5%; text-align: center; color: rgba(255, 255, 255, 0.4); font-size: 0.9rem; border-top: 1px solid rgba(0, 229, 255, 0.1); }
+        :root { --cyan: #00e5ff; --purple: #7c3aed; --bg: #060d1a; --card: rgba(13,27,51,0.85); }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'SF Pro Display',-apple-system,sans-serif; background:var(--bg); color:#e2e8f0; min-height:100vh; }
+
+        .stars { position:fixed; inset:0; z-index:0; background: radial-gradient(1.5px 1.5px at 20% 30%, rgba(0,229,255,0.6), transparent), radial-gradient(1px 1px at 80% 70%, rgba(124,58,237,0.5), transparent); background-size:250px 250px; animation:drift 120s linear infinite; }
+        @keyframes drift { to { background-position:250px 250px; } }
+
+        nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; justify-content:space-between; align-items:center; padding:0.9rem 3rem; background:rgba(6,13,26,0.95); backdrop-filter:blur(20px); border-bottom:1px solid rgba(0,229,255,0.12); }
+        .logo { font-size:1.5rem; font-weight:800; }
+        .logo span { background:linear-gradient(135deg,var(--cyan),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .nav-links { display:flex; gap:2rem; list-style:none; }
+        .nav-links a { color:rgba(255,255,255,0.65); text-decoration:none; font-size:0.9rem; transition:color 0.3s; }
+        .nav-links a:hover { color:var(--cyan); }
+        .nav-right { display:flex; gap:0.8rem; }
+        .btn { padding:0.55rem 1.4rem; border-radius:8px; font-size:0.88rem; font-weight:600; text-decoration:none; transition:all 0.3s; cursor:pointer; border:none; }
+        .btn-ghost { background:transparent; border:1px solid rgba(0,229,255,0.3); color:var(--cyan); }
+        .btn-primary { background:linear-gradient(135deg,var(--cyan),var(--purple)); color:#000; }
+
+        .main { position:relative; z-index:10; max-width:1200px; margin:0 auto; padding:7rem 2rem 4rem; }
+
+        /* 页面标题区 */
+        .page-header { margin-bottom:3rem; }
+        .page-header h1 { font-size:2.4rem; font-weight:800; color:#fff; margin-bottom:0.5rem; }
+        .page-header p { color:rgba(255,255,255,0.4); font-size:1rem; }
+
+        /* 筛选栏 */
+        .filter-bar { display:flex; gap:1rem; margin-bottom:2rem; flex-wrap:wrap; align-items:center; }
+        .filter-bar select, .filter-bar input {
+            padding:0.6rem 1rem; border-radius:8px; border:1px solid rgba(0,229,255,0.15);
+            background:rgba(0,0,0,0.3); color:#fff; font-size:0.88rem;
+        }
+        .filter-bar select:focus, .filter-bar input:focus { outline:none; border-color:var(--cyan); }
+        .filter-bar input { width:240px; }
+        .chip-group { display:flex; gap:0.4rem; flex-wrap:wrap; }
+        .chip {
+            padding:0.35rem 0.9rem; border-radius:99px; font-size:0.82rem;
+            border:1px solid rgba(0,229,255,0.2); background:transparent;
+            color:rgba(255,255,255,0.6); cursor:pointer; transition:all 0.2s;
+        }
+        .chip:hover, .chip.active { background:rgba(0,229,255,0.1); color:var(--cyan); border-color:var(--cyan); }
+
+        /* 模型表格 */
+        .model-table-wrap { background:var(--card); border:1px solid rgba(0,229,255,0.1); border-radius:16px; overflow:hidden; }
+        table { width:100%; border-collapse:collapse; }
+        thead th {
+            text-align:left; padding:1rem 1.2rem; font-size:0.82rem; font-weight:600;
+            color:var(--cyan); background:rgba(0,229,255,0.04);
+            border-bottom:1px solid rgba(0,229,255,0.1); cursor:pointer; user-select:none;
+        }
+        thead th:hover { background:rgba(0,229,255,0.08); }
+        tbody td { padding:0.9rem 1.2rem; font-size:0.88rem; color:rgba(255,255,255,0.7); border-bottom:1px solid rgba(255,255,255,0.04); }
+        tbody tr { transition:background 0.2s; }
+        tbody tr:hover { background:rgba(0,229,255,0.03); }
+        .model-name { font-weight:600; color:#fff; }
+        .provider-tag { display:inline-block; padding:0.15rem 0.5rem; border-radius:4px; font-size:0.75rem; font-weight:500; }
+        .p-deepseek { background:rgba(0,229,255,0.1); color:var(--cyan); }
+        .p-qwen { background:rgba(255,68,68,0.1); color:#ef4444; }
+        .p-openai { background:rgba(16,185,129,0.1); color:#10b981; }
+        .p-anthropic { background:rgba(124,58,237,0.1); color:var(--purple); }
+        .p-google { background:rgba(251,191,36,0.1); color:#fbbf24; }
+        .price-cell { color:var(--cyan); font-weight:500; }
+        .ctx-cell { color:rgba(255,255,255,0.5); font-size:0.82rem; }
+        .status-active { color:#00ff88; }
+        .status-inactive { color:#ef4444; }
+        .action-btn {
+            padding:0.3rem 0.8rem; border-radius:6px; font-size:0.8rem;
+            background:rgba(0,229,255,0.08); border:1px solid rgba(0,229,255,0.2);
+            color:var(--cyan); cursor:pointer; transition:all 0.2s;
+        }
+        .action-btn:hover { background:rgba(0,229,255,0.15); }
+
+        /* 加载状态 */
+        .loading { text-align:center; padding:4rem 2rem; color:rgba(255,255,255,0.4); font-size:0.95rem; }
+        .empty { text-align:center; padding:4rem 2rem; color:rgba(255,255,255,0.3); font-size:0.95rem; }
+
+        /* 对比弹窗 */
+        .compare-bar {
+            position:fixed; bottom:0; left:0; right:0; z-index:200;
+            background:rgba(6,13,26,0.97); backdrop-filter:blur(20px);
+            border-top:1px solid rgba(0,229,255,0.2);
+            padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center;
+            transform:translateY(100%); transition:transform 0.35s;
+        }
+        .compare-bar.show { transform:translateY(0); }
+        .compare-list { display:flex; gap:0.8rem; flex-wrap:wrap; }
+        .compare-item {
+            display:flex; align-items:center; gap:0.5rem;
+            padding:0.4rem 0.8rem; border-radius:8px;
+            background:rgba(0,229,255,0.08); border:1px solid rgba(0,229,255,0.2);
+            font-size:0.85rem; color:rgba(255,255,255,0.8);
+        }
+        .compare-item .remove { cursor:pointer; color:var(--cyan); font-weight:700; margin-left:0.3rem; }
+        .compare-btn {
+            padding:0.6rem 1.5rem; border-radius:8px; font-size:0.9rem; font-weight:600;
+            background:linear-gradient(135deg,var(--cyan),var(--purple)); color:#000;
+            border:none; cursor:pointer; transition:all 0.3s;
+        }
+        .compare-btn:disabled { opacity:0.4; cursor:not-allowed; }
+
+        footer { position:relative; z-index:10; text-align:center; padding:2.5rem 2rem; border-top:1px solid rgba(0,229,255,0.08); color:rgba(255,255,255,0.3); font-size:0.85rem; }
+
+        @media(max-width:768px) {
+            nav { padding:0.8rem 1.2rem; }
+            .nav-links { display:none; }
+            .main { padding:6rem 1.2rem 3rem; }
+            .page-header h1 { font-size:1.8rem; }
+            table { font-size:0.8rem; }
+            thead th, tbody td { padding:0.6rem 0.6rem; }
+        }
     </style>
 </head>
 <body>
-    <nav>
-        <div class="logo">星算<span>纪</span></div>
-        <ul class="nav-links">
-            <li><a href="index.html">首页</a></li>
-            <li><a href="apis.html">API</a></li>
-            <li><a href="models.html">模型</a></li>
-            <li><a href="pricing.html">价格</a></li>
-            <li><a href="docs.html">文档</a></li>
-        </ul>
-        <div>
-            <a href="login.html" class="btn btn-ghost">登录</a>
-            <a href="register.html" class="btn btn-primary">免费注册</a>
+<div class="stars"></div>
+
+<nav>
+    <div class="logo">星算<span>纪</span></div>
+    <ul class="nav-links">
+        <li><a href="index.html">首页</a></li>
+        <li><a href="models.html" style="color:var(--cyan);">模型</a></li>
+        <li><a href="pricing.html">价格</a></li>
+        <li><a href="docs.html">文档</a></li>
+        <li><a href="tutorial.html">教学</a></li>
+        <li><a href="sandbox.html">沙盒</a></li>
+        <li><a href="console.html">控制台</a></li>
+    </ul>
+    <div class="nav-right">
+        <a href="login.html" class="btn btn-ghost">登录</a>
+        <a href="register.html" class="btn btn-primary">免费注册</a>
+    </div>
+</nav>
+
+<div class="main">
+    <div class="page-header">
+        <h1>🤖 模型列表</h1>
+        <p>支持 30+ 主流大模型，点击"对比"可最多对比 3 个模型</p>
+    </div>
+
+    <!-- 筛选栏 -->
+    <div class="filter-bar">
+        <input type="text" id="search-input" placeholder="🔍 搜索模型名称..." oninput="filterModels()">
+        <div class="chip-group" id="provider-chips">
+            <button class="chip active" onclick="filterByProvider('all',this)">全部</button>
+            <button class="chip" onclick="filterByProvider('deepseek',this)">DeepSeek</button>
+            <button class="chip" onclick="filterByProvider('qwen',this)">通义千问</button>
+            <button class="chip" onclick="filterByProvider('openai',this)">OpenAI</button>
+            <button class="chip" onclick="filterByProvider('anthropic',this)">Claude</button>
+            <button class="chip" onclick="filterByProvider('google',this)">Gemini</button>
         </div>
-    </nav>
+    </div>
 
-    <section class="hero">
-        <h1>200+ <span class="gradient-text">模型</span></h1>
-        <p>汇聚全球顶尖 AI 大模型，一个 API Key 全部调用</p>
-    </section>
+    <!-- 模型表格 -->
+    <div class="model-table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th onclick="sortBy('display_name')">模型 ↕</th>
+                    <th>提供商</th>
+                    <th onclick="sortBy('input_price_per_1k')">输入价 ↕</th>
+                    <th onclick="sortBy('output_price_per_1k')">输出价 ↕</th>
+                    <th>上下文</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="models-tbody">
+                <tr><td colspan="7" class="loading">⏳ 加载中...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 
-    <section class="content">
-        <div class="model-grid">
-            <div class="model-card">
-                <h3>DeepSeek-R1</h3>
-                <div class="provider">DeepSeek · 推理模型</div>
-                <p>最强开源推理模型，性能媲美 o1，支持长链推理和数学计算。</p>
-                <div class="price">¥0.14 / 1M tokens</div>
-            </div>
-            <div class="model-card">
-                <h3>DeepSeek-V3</h3>
-                <div class="provider">DeepSeek · 对话模型</div>
-                <p>性价比之王，性能接近 Claude 3.5 Sonnet，价格仅为其 1/10。</p>
-                <div class="price">¥0.27 / 1M tokens</div>
-            </div>
-            <div class="model-card">
-                <h3>GPT-4o</h3>
-                <div class="provider">OpenAI · 多模态</div>
-                <p>OpenAI 旗舰模型，支持文本、图像、语音多模态输入。</p>
-                <div class="price">¥17.15 / 1M tokens</div>
-            </div>
-            <div class="model-card">
-                <h3>Claude 3.5 Sonnet</h3>
-                <div class="provider">Anthropic · 对话模型</div>
-                <p>最强代码和推理能力，支持 200K 上下文。</p>
-                <div class="price">¥15.30 / 1M tokens</div>
-            </div>
-            <div class="model-card">
-                <h3>Qwen3-235B</h3>
-                <div class="provider">阿里云 · 推理模型</div>
-                <p>开源 MoE 模型，235B 总参数，激活仅 22B，性能顶尖。</p>
-                <div class="price">¥0.50 / 1M tokens</div>
-            </div>
-            <div class="model-card">
-                <h3>Gemini 2.0 Flash</h3>
-                <div class="provider">Google · 多模态</div>
-                <p>Google 最新模型，极速响应，支持多模态输入。</p>
-                <div class="price">¥1.20 / 1M tokens</div>
-            </div>
-        </div>
-    </section>
+<!-- 对比底部栏 -->
+<div class="compare-bar" id="compare-bar">
+    <div class="compare-list" id="compare-list"></div>
+    <button class="compare-btn" id="compare-go" onclick="goCompare()" disabled>对比（<span id="compare-count">0</span>/3）</button>
+</div>
 
-    <footer>
-        <p>© 2024 星算纪 · 一站式 AI API 聚合平台</p>
-    </footer>
+<footer>
+    <p>© 2024 星算纪 xinsuanji.cn · <a href="docs.html" style="color:var(--cyan);text-decoration:none;">API 文档</a> · <a href="mailto:support@xinsuanji.cn" style="color:var(--cyan);text-decoration:none;">联系支持</a></p>
+</footer>
+
+<script>
+    let allModels = [];
+    let filteredModels = [];
+    let compareList = [];
+    let currentSort = null;
+    let currentProvider = 'all';
+
+    // 加载模型
+    async function loadModels() {
+        try {
+            const { data, error } = await supabase
+                .from('models')
+                .select('*')
+                .eq('status', 'active')
+                .order('input_price_per_1k', { ascending: true });
+
+            if (error) throw error;
+            allModels = data || [];
+            filteredModels = [...allModels];
+            renderModels();
+        } catch(e) {
+            document.getElementById('models-tbody').innerHTML =
+                '<tr><td colspan="7" class="empty">⚠️ 加载失败：' + e.message + '<br><br>请确认 supabase-config.js 配置正确，且 models 表中有数据。</td></tr>';
+        }
+    }
+
+    // 渲染表格
+    function renderModels() {
+        const tbody = document.getElementById('models-tbody');
+        if (filteredModels.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="empty">暂无匹配的模型</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = filteredModels.map(m => {
+            const providerClass = 'p-' + m.provider;
+            const ctx = formatContext(m.context_window);
+            const inPrice = (m.input_price_per_1k * 1000).toFixed(4);
+            const outPrice = (m.output_price_per_1k * 1000).toFixed(4);
+            const isInCompare = compareList.includes(m.model_id);
+            return '<tr>' +
+                '<td class="model-name">' + escapeHtml(m.display_name || m.model_id) + '</td>' +
+                '<td><span class="provider-tag ' + providerClass + '">' + providerLabel(m.provider) + '</span></td>' +
+                '<td class="price-cell">¥' + inPrice + '</td>' +
+                '<td class="price-cell">¥' + outPrice + '</td>' +
+                '<td class="ctx-cell">' + ctx + '</td>' +
+                '<td class="status-active">● 可用</td>' +
+                '<td><button class="action-btn" onclick="toggleCompare(\'' + m.model_id + '\',this)">' + (isInCompare ? '取消对比' : '对比') + '</button></td>' +
+            '</tr>';
+        }).join('');
+    }
+
+    // 筛选
+    function filterModels() {
+        const keyword = document.getElementById('search-input').value.toLowerCase();
+        filteredModels = allModels.filter(m => {
+            const name = (m.display_name || m.model_id).toLowerCase();
+            const matchesKeyword = name.includes(keyword) || m.model_id.toLowerCase().includes(keyword);
+            const matchesProvider = currentProvider === 'all' || m.provider === currentProvider;
+            return matchesKeyword && matchesProvider;
+        });
+        renderModels();
+    }
+
+    function filterByProvider(provider, el) {
+        currentProvider = provider;
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        filterModels();
+    }
+
+    // 排序
+    function sortBy(field) {
+        if (currentSort === field) {
+            filteredModels.reverse();
+        } else {
+            currentSort = field;
+            filteredModels.sort((a, b) => (a[field] || 0) - (b[field] || 0));
+        }
+        renderModels();
+    }
+
+    // 对比功能
+    function toggleCompare(modelId, btn) {
+        const idx = compareList.indexOf(modelId);
+        if (idx >= 0) {
+            compareList.splice(idx, 1);
+        } else {
+            if (compareList.length >= 3) { alert('最多对比 3 个模型'); return; }
+            compareList.push(modelId);
+        }
+        renderCompareBar();
+        renderModels(); // 刷新按钮文字
+    }
+
+    function renderCompareBar() {
+        const bar = document.getElementById('compare-bar');
+        const list = document.getElementById('compare-list');
+        const count = document.getElementById('compare-count');
+        const goBtn = document.getElementById('compare-go');
+
+        count.textContent = compareList.length;
+        goBtn.disabled = compareList.length < 2;
+
+        if (compareList.length >= 2) {
+            bar.classList.add('show');
+        } else {
+            bar.classList.remove('show');
+        }
+
+        list.innerHTML = compareList.map(id => {
+            const m = allModels.find(x => x.model_id === id);
+            return '<div class="compare-item">' +
+                '<span>' + escapeHtml(m?.display_name || id) + '</span>' +
+                '<span class="remove" onclick="toggleCompare(\'' + id + '\',null)">✕</span>' +
+            '</div>';
+        }).join('');
+    }
+
+    function goCompare() {
+        // 简单对比：弹窗展示
+        const selected = allModels.filter(m => compareList.includes(m.model_id));
+        let html = '<div style="background:#060d1a;color:#e2e8f0;padding:2rem;border-radius:16px;max-width:700px;margin:5vh auto;font-family:inherit;">' +
+            '<h2 style="color:#00e5ff;margin-bottom:1.5rem;">📊 模型对比（' + selected.length + ' 个）</h2>' +
+            '<table style="width:100%;border-collapse:collapse;font-size:0.88rem;">' +
+            '<tr style="color:#00e5ff;"><th style="text-align:left;padding:0.6rem;">项目</th>' + selected.map(m => '<th style="text-align:left;padding:0.6rem;">' + escapeHtml(m.display_name || m.model_id) + '</th>').join('') + '</tr>' +
+            '<tr><td style="padding:0.6rem;color:rgba(255,255,255,0.5);">提供商</td>' + selected.map(m => '<td style="padding:0.6rem;">' + providerLabel(m.provider) + '</td>').join('') + '</tr>' +
+            '<tr><td style="padding:0.6rem;color:rgba(255,255,255,0.5);">输入价/1M</td>' + selected.map(m => '<td style="padding:0.6rem;color:#00e5ff;">¥' + (m.input_price_per_1k*1000).toFixed(4) + '</td>').join('') + '</tr>' +
+            '<tr><td style="padding:0.6rem;color:rgba(255,255,255,0.5);">输出价/1M</td>' + selected.map(m => '<td style="padding:0.6rem;color:#00e5ff;">¥' + (m.output_price_per_1k*1000).toFixed(4) + '</td>').join('') + '</tr>' +
+            '<tr><td style="padding:0.6rem;color:rgba(255,255,255,0.5);">上下文</td>' + selected.map(m => '<td style="padding:0.6rem;">' + formatContext(m.context_window) + '</td>').join('') + '</tr>' +
+            '</table>' +
+            '<button onclick="this.parentElement.remove()" style="margin-top:1.5rem;padding:0.6rem 1.5rem;border-radius:8px;border:none;background:linear-gradient(135deg,#00e5ff,#7c3aed);color:#000;font-weight:700;cursor:pointer;">关闭</button>' +
+        '</div>';
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.7);overflow:auto;';
+        overlay.innerHTML = html;
+        overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+        document.body.appendChild(overlay);
+    }
+
+    // 工具函数
+    function providerLabel(p) {
+        return { deepseek:'DeepSeek', qwen:'阿里云', openai:'OpenAI', anthropic:'Anthropic', google:'Google' }[p] || p;
+    }
+    function formatContext(n) {
+        if (!n) return '-';
+        if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+        if (n >= 1000) return (n/1000).toFixed(0) + 'K';
+        return String(n);
+    }
+    function escapeHtml(s) {
+        const d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+    }
+
+    // 启动
+    loadModels();
+</script>
 </body>
 </html>
