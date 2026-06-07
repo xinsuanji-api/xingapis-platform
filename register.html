@@ -1,357 +1,143 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>注册 - 星算纪 API 平台</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: linear-gradient(135deg, #0a1628 0%, #0d2137 100%);
-      color: #e2e8f0;
-      line-height: 1.6;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .register-container {
-      background: rgba(15, 23, 42, 0.9);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(0, 229, 255, 0.2);
-      border-radius: 16px;
-      padding: 3rem;
-      width: 100%;
-      max-width: 500px;
-      box-shadow: 0 0 50px rgba(0, 229, 255, 0.2);
-    }
-
-    .logo {
-      text-align: center;
-      font-size: 2rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, #00e5ff, #7c3aed);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 0.5rem;
-    }
-
-    .subtitle {
-      text-align: center;
-      color: #94a3b8;
-      font-size: 1rem;
-      margin-bottom: 2.5rem;
-    }
-
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
-
-    .form-label {
-      display: block;
-      color: #94a3b8;
-      margin-bottom: 0.5rem;
-      font-size: 0.95rem;
-    }
-
-    .form-input {
-      width: 100%;
-      padding: 0.9rem 1rem;
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(0, 229, 255, 0.2);
-      border-radius: 8px;
-      color: #e2e8f0;
-      font-size: 1rem;
-      transition: all 0.3s;
-    }
-
-    .form-input:focus {
-      outline: none;
-      border-color: #00e5ff;
-      box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
-    }
-
-    .password-toggle {
-      position: relative;
-    }
-
-    .password-toggle button {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      color: #94a3b8;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-
-    .password-toggle button:hover {
-      color: #00e5ff;
-    }
-
-    .btn-register {
-      width: 100%;
-      padding: 1rem;
-      background: linear-gradient(135deg, #00e5ff, #7c3aed);
-      color: white;
-      border: none;
-      border-radius: 25px;
-      font-weight: 600;
-      font-size: 1.1rem;
-      cursor: pointer;
-      transition: all 0.3s;
-      margin-top: 1rem;
-    }
-
-    .btn-register:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 20px rgba(0, 229, 255, 0.4);
-    }
-
-    .btn-register:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .error-message {
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      border-radius: 8px;
-      padding: 1rem;
-      color: #ef4444;
-      margin-bottom: 1.5rem;
-      font-size: 0.9rem;
-    }
-
-    .success-message {
-      background: rgba(34, 197, 94, 0.1);
-      border: 1px solid rgba(34, 197, 94, 0.3);
-      border-radius: 8px;
-      padding: 1rem;
-      color: #22c55e;
-      margin-bottom: 1.5rem;
-      font-size: 0.9rem;
-    }
-
-    .links {
-      text-align: center;
-      margin-top: 2rem;
-      color: #94a3b8;
-      font-size: 0.95rem;
-    }
-
-    .links a {
-      color: #00e5ff;
-      text-decoration: none;
-      transition: all 0.3s;
-    }
-
-    .links a:hover {
-      color: #7c3aed;
-      text-decoration: underline;
-    }
-
-    .loading {
-      text-align: center;
-      color: #94a3b8;
-      margin-top: 1rem;
-    }
-
-    .password-requirements {
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: 8px;
-      padding: 1rem;
-      margin-top: 0.5rem;
-      font-size: 0.85rem;
-      color: #64748b;
-    }
-
-    .password-requirements ul {
-      margin-left: 1.5rem;
-      margin-top: 0.5rem;
-    }
-
-    .password-requirements li {
-      margin-bottom: 0.3rem;
-    }
-
-    @media (max-width: 768px) {
-      .register-container {
-        margin: 1rem;
-        padding: 2rem;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - 星算纪</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <style>
+        :root { --ocean-deep: #0a1628; --ocean-mid: #0d2137; --cyan-glow: #00e5ff; --purple-dream: #7c3aed; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'SF Pro Display', -apple-system, sans-serif; background: var(--ocean-deep); color: #ffffff; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        
+        .bg-animation { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
+        .bg-animation::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 20%, rgba(0, 229, 255, 0.08), transparent 60%), radial-gradient(ellipse at 70% 80%, rgba(124, 58, 237, 0.08), transparent 60%); }
+        
+        .register-card { position: relative; z-index: 10; background: rgba(13, 33, 55, 0.9); backdrop-filter: blur(30px); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 24px; padding: 3rem; width: 100%; max-width: 440px; box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5); }
+        .logo { text-align: center; font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .logo span { background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { text-align: center; color: rgba(255, 255, 255, 0.5); font-size: 0.95rem; margin-bottom: 2.5rem; }
+        
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; margin-bottom: 0.5rem; font-weight: 500; }
+        .form-group input { width: 100%; padding: 0.9rem 1.2rem; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(0, 229, 255, 0.15); border-radius: 12px; color: #ffffff; font-size: 1rem; transition: all 0.3s; }
+        .form-group input:focus { outline: none; border-color: var(--cyan-glow); box-shadow: 0 0 20px rgba(0, 229, 255, 0.15); }
+        .form-group input::placeholder { color: rgba(255, 255, 255, 0.3); }
+        
+        .bonus-tip { background: rgba(0, 255, 136, 0.05); border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 10px; padding: 0.8rem 1rem; color: #00ff88; font-size: 0.9rem; margin-bottom: 1.5rem; text-align: center; }
+        
+        .btn-register { width: 100%; padding: 1rem; background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream)); color: #000; border: none; border-radius: 12px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.3s; margin-top: 0.5rem; }
+        .btn-register:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0, 229, 255, 0.3); }
+        .btn-register:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        
+        .error-msg { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px; padding: 0.8rem 1rem; color: #ef4444; font-size: 0.9rem; margin-bottom: 1.5rem; display: none; }
+        .error-msg.show { display: block; }
+        
+        .success-msg { background: rgba(0, 255, 136, 0.1); border: 1px solid rgba(0, 255, 136, 0.3); border-radius: 10px; padding: 1rem; color: #00ff88; font-size: 0.9rem; margin-bottom: 1.5rem; display: none; }
+        .success-msg.show { display: block; }
+        
+        .loading { display: none; text-align: center; padding: 1rem; color: rgba(255, 255, 255, 0.5); }
+        .loading.show { display: block; }
+        
+        .switch-link { text-align: center; margin-top: 2rem; color: rgba(255, 255, 255, 0.5); font-size: 0.9rem; }
+        .switch-link a { color: var(--cyan-glow); text-decoration: none; font-weight: 600; }
+        .switch-link a:hover { text-decoration: underline; }
+        
+        .terms { text-align: center; margin-top: 1.5rem; color: rgba(255, 255, 255, 0.3); font-size: 0.8rem; }
+        .terms a { color: rgba(0, 229, 255, 0.5); text-decoration: none; }
+    </style>
 </head>
 <body>
-  <div class="register-container">
-    <div class="logo">🚀 星算纪 API 平台</div>
-    <div class="subtitle">创建您的账户</div>
-
-    <div id="error-message" class="error-message" style="display: none;"></div>
-    <div id="success-message" class="success-message" style="display: none;"></div>
-
-    <form id="register-form">
-      <div class="form-group">
-        <label class="form-label" for="email">邮箱地址</label>
-        <input type="email" class="form-input" id="email" placeholder="请输入邮箱" required>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="username">用户名（可选）</label>
-        <input type="text" class="form-input" id="username" placeholder="请输入用户名">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="password">密码</label>
-        <div class="password-toggle">
-          <input type="password" class="form-input" id="password" placeholder="请输入密码（至少 6 位）" required minlength="6">
-          <button type="button" id="toggle-password">显示</button>
+    <div class="bg-animation"></div>
+    
+    <div class="register-card">
+        <div class="logo">星算<span>纪</span></div>
+        <div class="subtitle">创建您的账户</div>
+        
+        <div class="bonus-tip">🎉 注册即送 ¥10 体验金！</div>
+        
+        <div class="error-msg" id="error-msg"></div>
+        <div class="success-msg" id="success-msg"></div>
+        <div class="loading" id="loading">注册中...</div>
+        
+        <form id="register-form" onsubmit="handleRegister(event)">
+            <div class="form-group">
+                <label>邮箱</label>
+                <input type="email" id="email" placeholder="you@email.com" required autocomplete="email">
+            </div>
+            <div class="form-group">
+                <label>密码（至少6位）</label>
+                <input type="password" id="password" placeholder="设置登录密码" required autocomplete="new-password" minlength="6">
+            </div>
+            <div class="form-group">
+                <label>确认密码</label>
+                <input type="password" id="confirm-password" placeholder="再次输入密码" required autocomplete="new-password">
+            </div>
+            <button type="submit" class="btn-register" id="btn-register">创建账户</button>
+        </form>
+        
+        <div class="switch-link">
+            已有账户？<a href="login.html">立即登录</a>
         </div>
-        <div class="password-requirements">
-          <strong>密码要求：</strong>
-          <ul>
-            <li>至少 6 个字符</li>
-            <li>建议包含大小写字母和数字</li>
-          </ul>
+        
+        <div class="terms">
+            注册即表示同意 <a href="#">服务条款</a> 和 <a href="#">隐私政策</a>
         </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="confirm-password">确认密码</label>
-        <div class="password-toggle">
-          <input type="password" class="form-input" id="confirm-password" placeholder="请再次输入密码" required>
-          <button type="button" id="toggle-confirm-password">显示</button>
-        </div>
-      </div>
-
-      <button type="submit" class="btn-register" id="btn-register">注册</button>
-    </form>
-
-    <div class="loading" id="loading" style="display: none;">注册中...</div>
-
-    <div class="links">
-      <p>已有账户？ <a href="/login">立即登录</a></p>
     </div>
-  </div>
 
-  <script>
-    // Supabase 配置（替换为您的配置）
-    const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+    <script>
+        async function handleRegister(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const btn = document.getElementById('btn-register');
+            const errorMsg = document.getElementById('error-msg');
+            const successMsg = document.getElementById('success-msg');
+            const loading = document.getElementById('loading');
 
-    // 初始化 Supabase 客户端
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // DOM 元素
-    const registerForm = document.getElementById('register-form');
-    const btnRegister = document.getElementById('btn-register');
-    const errorMessage = document.getElementById('error-message');
-    const successMessage = document.getElementById('success-message');
-    const loading = document.getElementById('loading');
-    const togglePassword = document.getElementById('toggle-password');
-    const passwordInput = document.getElementById('password');
-    const toggleConfirmPassword = document.getElementById('toggle-confirm-password');
-    const confirmPasswordInput = document.getElementById('confirm-password');
-
-    // 显示/隐藏密码
-    togglePassword.addEventListener('click', () => {
-      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-      passwordInput.setAttribute('type', type);
-      togglePassword.textContent = type === 'password' ? '显示' : '隐藏';
-    });
-
-    toggleConfirmPassword.addEventListener('click', () => {
-      const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-      confirmPasswordInput.setAttribute('type', type);
-      toggleConfirmPassword.textContent = type === 'password' ? '显示' : '隐藏';
-    });
-
-    // 注册表单提交
-    registerForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const email = document.getElementById('email').value;
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirm-password').value;
-
-      // 验证密码
-      if (password !== confirmPassword) {
-        errorMessage.textContent = '两次输入的密码不一致';
-        errorMessage.style.display = 'block';
-        successMessage.style.display = 'none';
-        return;
-      }
-
-      if (password.length < 6) {
-        errorMessage.textContent = '密码长度至少 6 位';
-        errorMessage.style.display = 'block';
-        successMessage.style.display = 'none';
-        return;
-      }
-
-      // 隐藏消息
-      errorMessage.style.display = 'none';
-      successMessage.style.display = 'none';
-
-      // 禁用按钮
-      btnRegister.disabled = true;
-      loading.style.display = 'block';
-
-      try {
-        const { data, error } = await supabase.auth.signUp({
-          email: email,
-          password: password,
-          options: {
-            data: {
-              username: username || null,
+            // 验证
+            if (password !== confirmPassword) {
+                errorMsg.textContent = '两次输入的密码不一致';
+                errorMsg.classList.add('show');
+                return;
             }
-          }
-        });
+            if (password.length < 6) {
+                errorMsg.textContent = '密码长度至少6位';
+                errorMsg.classList.add('show');
+                return;
+            }
 
-        if (error) throw error;
+            errorMsg.classList.remove('show');
+            successMsg.classList.remove('show');
+            btn.disabled = true;
+            loading.classList.add('show');
 
-        // 注册成功
-        successMessage.innerHTML = `
-          <p><strong>✅ 注册成功！</strong></p>
-          <p>我们已向您的邮箱发送了验证邮件，请查收并点击验证链接。</p>
-          <p style="margin-top: 0.5rem;">验证完成后，<a href="/login">点击这里登录</a>。</p>
-        `;
-        successMessage.style.display = 'block';
+            const { data, error } = await supabase.auth.signUp({
+                email: email,
+                password: password
+            });
 
-        // 重置表单
-        registerForm.reset();
+            loading.classList.remove('show');
+            btn.disabled = false;
 
-      } catch (error) {
-        errorMessage.textContent = `注册失败：${error.message}`;
-        errorMessage.style.display = 'block';
-      } finally {
-        btnRegister.disabled = false;
-        loading.style.display = 'none';
-      }
-    });
+            if (error) {
+                errorMsg.textContent = '注册失败：' + error.message;
+                errorMsg.classList.add('show');
+                return;
+            }
 
-    // 检查是否已经登录
-    (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        // 已经登录，跳转到控制台
-        window.location.href = '/console';
-      }
-    })();
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+            // 注册成功
+            successMsg.textContent = '🎉 注册成功！请检查邮箱验证邮件，然后登录。';
+            successMsg.classList.add('show');
+            document.getElementById('register-form').reset();
+
+            // 3秒后跳转登录
+            setTimeout(() => {
+                window.location.href = 'login.html?redirect=' + encodeURIComponent('console.html');
+            }, 3000);
+        }
+    </script>
 </body>
 </html>

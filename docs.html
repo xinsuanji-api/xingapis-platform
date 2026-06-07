@@ -3,925 +3,249 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API 文档 | 星算纪</title>
+    <title>API 文档 - 星算纪</title>
     <style>
-        :root {
-            --ocean-deep: #0a1628;
-            --ocean-mid: #0d2137;
-            --cyan-glow: #00e5ff;
-            --purple-dream: #7c3aed;
-            --star-yellow: #fbbf24;
-        }
-
+        :root { --ocean-deep: #0a1628; --ocean-mid: #0d2137; --cyan-glow: #00e5ff; --purple-dream: #7c3aed; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'SF Pro Display', -apple-system, sans-serif;
-            background: var(--ocean-deep);
-            color: #ffffff;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        /* 星空海洋画布 */
-        #starry-ocean {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-        }
-
-        /* 星光层 */
-        .stars-layer {
-            position: fixed;
-            inset: 0;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        .star {
-            position: absolute;
-            background: #ffffff;
-            border-radius: 50%;
-            animation: twinkle var(--duration) ease-in-out infinite;
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: var(--opacity-min); transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.5); }
-        }
-
-        /* 游动的鱼 */
-        .fish-container {
-            position: fixed;
-            inset: 0;
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        .fish {
-            position: absolute;
-            animation: swim var(--swim-duration) linear infinite;
-            opacity: 0.5;
-        }
-
-        .fish-body {
-            width: var(--fish-size);
-            height: calc(var(--fish-size) * 0.5);
-            background: linear-gradient(135deg, var(--fish-color-1), var(--fish-color-2));
-            border-radius: 50% 50% 50% 0;
-            position: relative;
-            filter: drop-shadow(0 0 8px var(--fish-glow));
-        }
-
-        .fish-tail {
-            position: absolute;
-            right: -10px;
-            top: 20%;
-            width: 0;
-            height: 0;
-            border-left: 12px solid var(--fish-color-2);
-            border-top: 6px solid transparent;
-            border-bottom: 6px solid transparent;
-            animation: tailWag 0.8s ease-in-out infinite;
-        }
-
-        @keyframes tailWag {
-            0%, 100% { transform: rotate(0deg); }
-            50% { transform: rotate(15deg); }
-        }
-
-        .fish-eye {
-            position: absolute;
-            left: 6px;
-            top: 30%;
-            width: 5px;
-            height: 5px;
-            background: #ffffff;
-            border-radius: 50%;
-            box-shadow: 0 0 4px #fff;
-        }
-
-        @keyframes swim {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(1200px, 0); }
-        }
-
-        /* 气泡 */
-        .bubble {
-            position: fixed;
-            bottom: -50px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, rgba(0, 229, 255, 0.25), rgba(0, 229, 255, 0.05));
-            border: 1px solid rgba(0, 229, 255, 0.25);
-            animation: bubbleRise var(--rise-duration) ease-in infinite;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        @keyframes bubbleRise {
-            0% { transform: translateX(0) translateY(0) scale(1); opacity: 0.7; }
-            100% { transform: translateX(var(--drift)) translateY(-110vh) scale(0.3); opacity: 0; }
-        }
+        body { font-family: 'SF Pro Display', -apple-system, sans-serif; background: var(--ocean-deep); color: #e2e8f0; line-height: 1.7; }
 
         /* 导航 */
-        nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            padding: 1rem 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 100;
-            background: rgba(10, 22, 40, 0.9);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0, 229, 255, 0.2);
-        }
-
-        .logo {
-            font-size: 1.6rem;
-            font-weight: 800;
-            letter-spacing: -1px;
-        }
-
-        .logo span {
-            background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: glowPulse 3s ease-in-out infinite;
-        }
-
-        @keyframes glowPulse {
-            0%, 100% { filter: drop-shadow(0 0 5px var(--cyan-glow)); }
-            50% { filter: drop-shadow(0 0 25px var(--cyan-glow)); }
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
-        }
-
-        .nav-links a {
-            color: rgba(255, 255, 255, 0.6);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.3s;
-            position: relative;
-        }
-
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--cyan-glow);
-            transition: width 0.3s;
-        }
-
-        .nav-links a:hover::after,
-        .nav-links a.active::after {
-            width: 100%;
-        }
-
-        .nav-links a:hover,
-        .nav-links a.active {
-            color: var(--cyan-glow);
-        }
-
-        .btn {
-            padding: 0.6rem 1.5rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s;
-            cursor: pointer;
-            border: none;
-        }
-
-        .btn-ghost {
-            background: transparent;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream));
-            color: #000;
-            box-shadow: 0 0 30px rgba(0, 229, 255, 0.4);
-        }
+        nav { position: fixed; top: 0; left: 0; right: 0; padding: 1rem 3rem; display: flex; justify-content: space-between; align-items: center; z-index: 100; background: rgba(10, 22, 40, 0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0, 229, 255, 0.2); }
+        .logo { font-size: 1.6rem; font-weight: 800; }
+        .logo span { background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; }
+        .nav-links a { color: rgba(255, 255, 255, 0.6); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--cyan-glow); }
+        .btn { padding: 0.6rem 1.5rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; text-decoration: none; transition: all 0.3s; cursor: pointer; border: none; }
+        .btn-primary { background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream)); color: #000; }
+        .nav-right { display: flex; gap: 1rem; }
 
         /* 布局 */
-        .layout {
-            display: flex;
-            padding-top: 80px;
-            min-height: 100vh;
-            position: relative;
-            z-index: 10;
-        }
-
+        .layout { display: flex; margin-top: 73px; min-height: calc(100vh - 73px); }
+        
         /* 侧边栏 */
-        .sidebar {
-            width: 280px;
-            position: fixed;
-            top: 80px;
-            left: 0;
-            bottom: 0;
-            padding: 2rem 1.5rem;
-            background: rgba(10, 22, 40, 0.95);
-            border-right: 1px solid rgba(0, 229, 255, 0.15);
-            overflow-y: auto;
-            z-index: 10;
-        }
-
-        .sidebar-section {
-            margin-bottom: 2.5rem;
-        }
-
-        .sidebar-title {
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--cyan-glow);
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid rgba(0, 229, 255, 0.2);
-        }
-
-        .sidebar-links {
-            list-style: none;
-        }
-
-        .sidebar-links li {
-            margin-bottom: 0.3rem;
-        }
-
-        .sidebar-links a {
-            display: block;
-            padding: 0.6rem 1rem;
-            color: rgba(255, 255, 255, 0.5);
-            text-decoration: none;
-            font-size: 0.9rem;
-            border-radius: 8px;
-            transition: all 0.3s;
-            border-left: 2px solid transparent;
-        }
-
-        .sidebar-links a:hover,
-        .sidebar-links a.active {
-            background: rgba(0, 229, 255, 0.08);
-            color: var(--cyan-glow);
-            border-left-color: var(--cyan-glow);
-        }
+        .sidebar { width: 280px; background: rgba(13, 33, 55, 0.5); border-right: 1px solid rgba(0, 229, 255, 0.1); padding: 2rem 0; position: sticky; top: 73px; height: calc(100vh - 73px); overflow-y: auto; flex-shrink: 0; }
+        .sidebar-group { margin-bottom: 2rem; }
+        .sidebar-title { color: rgba(255, 255, 255, 0.4); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; padding: 0 1.5rem; margin-bottom: 0.8rem; }
+        .sidebar-link { display: block; padding: 0.6rem 1.5rem; color: rgba(255, 255, 255, 0.6); text-decoration: none; font-size: 0.9rem; transition: all 0.2s; border-left: 3px solid transparent; }
+        .sidebar-link:hover { color: var(--cyan-glow); background: rgba(0, 229, 255, 0.05); }
+        .sidebar-link.active { color: var(--cyan-glow); border-left-color: var(--cyan-glow); background: rgba(0, 229, 255, 0.05); }
 
         /* 主内容 */
-        .main {
-            flex: 1;
-            margin-left: 280px;
-            padding: 3rem 4rem;
-            max-width: 1000px;
-        }
+        .main { flex: 1; padding: 3rem 4rem; max-width: 900px; }
+        h1 { font-size: 2.5rem; font-weight: 800; color: #ffffff; margin-bottom: 1rem; }
+        h2 { font-size: 1.8rem; font-weight: 700; color: var(--cyan-glow); margin-top: 3rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(0, 229, 255, 0.1); }
+        h3 { font-size: 1.3rem; font-weight: 600; color: #ffffff; margin-top: 2rem; margin-bottom: 0.8rem; }
+        p { color: rgba(255, 255, 255, 0.7); margin-bottom: 1rem; }
+        code { background: rgba(0, 229, 255, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.9rem; color: var(--cyan-glow); }
+        pre { background: #000; border: 1px solid rgba(0, 229, 255, 0.15); border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; overflow-x: auto; }
+        pre code { background: none; padding: 0; color: #00ff00; font-size: 0.9rem; line-height: 1.6; }
+        .tip { background: rgba(0, 229, 255, 0.05); border-left: 4px solid var(--cyan-glow); padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin: 1.5rem 0; color: rgba(255, 255, 255, 0.7); font-size: 0.95rem; }
+        .warn { background: rgba(251, 191, 36, 0.05); border-left: 4px solid #fbbf24; padding: 1rem 1.5rem; border-radius: 0 8px 8px 0; margin: 1.5rem 0; color: rgba(255, 255, 255, 0.7); font-size: 0.95rem; }
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+        th { text-align: left; padding: 0.8rem 1rem; background: rgba(0, 229, 255, 0.05); color: var(--cyan-glow); font-size: 0.85rem; font-weight: 600; border-bottom: 1px solid rgba(0, 229, 255, 0.15); }
+        td { padding: 0.8rem 1rem; color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        a { color: var(--cyan-glow); text-decoration: none; }
+        a:hover { text-decoration: underline; }
 
-        .main h1 {
-            font-size: 3rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .main > p {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 1.15rem;
-            margin-bottom: 3rem;
-        }
-
-        .section {
-            margin-bottom: 4rem;
-            animation: fadeIn 0.8s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .section h2 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid rgba(0, 229, 255, 0.3);
-            color: #ffffff;
-        }
-
-        .section h3 {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--cyan-glow);
-            margin-top: 2rem;
-            margin-bottom: 1rem;
-        }
-
-        .section p {
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 1rem;
-            line-height: 1.8;
-        }
-
-        /* 代码块 */
-        .code-block {
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(0, 229, 255, 0.2);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-            overflow-x: auto;
-            position: relative;
-        }
-
-        .code-block::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--cyan-glow), var(--purple-dream));
-            border-radius: 12px 12px 0 0;
-        }
-
-        .code-block pre {
-            font-family: 'JetBrains Mono', 'Fira Code', monospace;
-            font-size: 0.9rem;
-            line-height: 1.7;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .kw { color: #c084fc; font-weight: 600; }
-        .str { color: #86efac; }
-        .cm { color: #475569; font-style: italic; }
-        .fn { color: #22d3ee; }
-        .num { color: #fbbf24; }
-
-        /* 参数表格 */
-        .param-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1.5rem 0;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .param-table th {
-            background: rgba(0, 229, 255, 0.1);
-            color: var(--cyan-glow);
-            padding: 1rem;
-            text-align: left;
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .param-table td {
-            padding: 1rem;
-            border-top: 1px solid rgba(0, 229, 255, 0.1);
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-        }
-
-        .param-name {
-            color: #fbbf24;
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 600;
-        }
-
-        .param-type {
-            color: var(--cyan-glow);
-            font-size: 0.8rem;
-        }
-
-        .required {
-            color: #f87171;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .optional {
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 0.75rem;
-        }
-
-        /* 提示框 */
-        .tip {
-            background: rgba(0, 229, 255, 0.05);
-            border-left: 4px solid var(--cyan-glow);
-            padding: 1.25rem 1.5rem;
-            margin: 1.5rem 0;
-            border-radius: 0 10px 10px 0;
-        }
-
-        .tip p {
-            color: rgba(255, 255, 255, 0.7);
-            margin: 0;
-        }
-
-        .warning {
-            background: rgba(251, 191, 36, 0.05);
-            border-left-color: #fbbf24;
-        }
-
-        .warning p {
-            color: #fbbf24;
-        }
-
-        /* 响应示例 */
-        .response-block {
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(0, 229, 255, 0.2);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-        }
-
-        .response-block h4 {
-            color: var(--cyan-glow);
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-            font-weight: 600;
-        }
-
-        .response-block pre {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            line-height: 1.6;
-            color: rgba(255, 255, 255, 0.7);
-            overflow-x: auto;
-        }
-
-        /* 错误码表格 */
-        .error-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1.5rem 0;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .error-table th {
-            background: rgba(248, 113, 113, 0.1);
-            color: #f87171;
-            padding: 1rem;
-            text-align: left;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .error-table td {
-            padding: 1rem;
-            border-top: 1px solid rgba(248, 113, 113, 0.1);
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.85rem;
-        }
-
-        .error-code {
-            color: #f87171;
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 600;
-        }
-
-        /* Footer */
-        footer {
-            position: relative;
-            z-index: 10;
-            padding: 3rem 5%;
-            text-align: center;
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 0.9rem;
-            border-top: 1px solid rgba(0, 229, 255, 0.1);
-            margin-top: 5rem;
-        }
-
-        @media (max-width: 900px) {
+        /* 响应式 */
+        @media (max-width: 1024px) {
             .sidebar { display: none; }
-            .main { margin-left: 0; padding: 2rem 5%; }
-            .nav-links { display: none; }
+            .main { padding: 2rem 1.5rem; }
         }
     </style>
 </head>
 <body>
-    <!-- 星空海洋画布 -->
-    <canvas id="starry-ocean"></canvas>
-
-    <!-- 星光层 -->
-    <div class="stars-layer" id="stars-layer"></div>
-
-    <!-- 游动的鱼 -->
-    <div class="fish-container" id="fish-container"></div>
-
-    <!-- 气泡 -->
-    <div id="bubbles-container"></div>
-
     <nav>
         <div class="logo">星算<span>纪</span></div>
         <ul class="nav-links">
-            <li><a href="/">首页</a></li>
-            <li><a href="/apis">API</a></li>
-            <li><a href="/models">模型</a></li>
-            <li><a href="/pricing">价格</a></li>
-            <li><a href="/docs" class="active">文档</a></li>
+            <li><a href="index.html">首页</a></li>
+            <li><a href="models.html">模型</a></li>
+            <li><a href="pricing.html">价格</a></li>
+            <li><a href="docs.html" style="color:var(--cyan-glow);">文档</a></li>
+            <li><a href="console.html">控制台</a></li>
         </ul>
-        <div>
-            <a href="/login" class="btn btn-ghost">登录</a>
-            <a href="/register" class="btn btn-primary">免费注册</a>
+        <div class="nav-right">
+            <a href="login.html" class="btn btn-ghost">登录</a>
+            <a href="register.html" class="btn btn-primary">免费注册</a>
         </div>
     </nav>
 
     <div class="layout">
         <aside class="sidebar">
-            <div class="sidebar-section">
+            <div class="sidebar-group">
                 <div class="sidebar-title">快速开始</div>
-                <ul class="sidebar-links">
-                    <li><a href="#quickstart" class="active">快速开始</a></li>
-                    <li><a href="#auth">认证方式</a></li>
-                    <li><a href="#baseurl">基础 URL</a></li>
-                </ul>
+                <a href="#quickstart" class="sidebar-link active">快速开始</a>
+                <a href="#auth" class="sidebar-link">认证方式</a>
+                <a href="#models" class="sidebar-link">模型列表</a>
             </div>
-            <div class="sidebar-section">
-                <div class="sidebar-title">核心接口</div>
-                <ul class="sidebar-links">
-                    <li><a href="#chat">对话补全</a></li>
-                    <li><a href="#models">模型列表</a></li>
-                    <li><a href="#usage">用量查询</a></li>
-                </ul>
+            <div class="sidebar-group">
+                <div class="sidebar-title">API 参考</div>
+                <a href="#chat" class="sidebar-link">对话生成</a>
+                <a href="#embeddings" class="sidebar-link">文本嵌入</a>
+                <a href="#image" class="sidebar-link">图像生成</a>
+                <a href="#audio" class="sidebar-link">语音识别</a>
             </div>
-            <div class="sidebar-section">
-                <div class="sidebar-title">高级</div>
-                <ul class="sidebar-links">
-                    <li><a href="#stream">流式响应</a></li>
-                    <li><a href="#errors">错误码</a></li>
-                    <li><a href="#limits">频率限制</a></li>
-                </ul>
+            <div class="sidebar-group">
+                <div class="sidebar-title">进阶</div>
+                <a href="#errors" class="sidebar-link">错误处理</a>
+                <a href="#rate-limit" class="sidebar-link">限流说明</a>
+                <a href="#sdk" class="sidebar-link">SDK 下载</a>
             </div>
         </aside>
 
         <main class="main">
             <h1>API 文档</h1>
-            <p>完整接口参考，快速接入星算纪 AI 聚合服务</p>
+            <p style="font-size:1.1rem;color:rgba(255,255,255,0.5);">星算纪提供 OpenAI 兼容 API，一行代码即可切换。</p>
 
-            <section class="section" id="quickstart">
-                <h2>🚀 快速开始</h2>
-                
-                <h3>1. 获取 API Key</h3>
-                <p>注册并登录后，在<strong>用户中心 → API 密钥</strong>页面创建您的 API Key。请妥善保管，不要在前端代码中暴露。</p>
+            <!-- 快速开始 -->
+            <h2 id="quickstart">🚀 快速开始</h2>
+            <p>只需 3 步，即可开始调用：</p>
+            <p><strong>1. 注册账户</strong><br>在 <a href="register.html">控制台</a> 注册并获取 API Key（格式：<code>sk-xxxxxxxx</code>）</p>
+            <p><strong>2. 查看余额</strong><br>新用户注册即送 <code>¥10</code> 体验金，无需充值即可测试。</p>
+            <p><strong>3. 发起请求</strong><br>使用下面的示例代码，替换 <code>YOUR_API_KEY</code> 即可：</p>
+            <pre><code># 对话生成（OpenAI 兼容）
+curl https://api.xinsuanji.cn/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "model": "deepseek-v3",
+    "messages": [{"role": "user", "content": "你好！"}]
+  }'</code></pre>
 
-                <h3>2. 安装 SDK（可选）</h3>
-                <div class="code-block">
-                    <pre><span class="cm"># Node.js</span>
-<span class="kw">npm install</span> @xingapis/sdk
+            <!-- 认证 -->
+            <h2 id="auth">🔐 认证方式</h2>
+            <p>所有 API 请求需要在 Header 中携带 API Key：</p>
+            <pre><code>Authorization: Bearer sk-your-api-key-here</code></pre>
+            <div class="tip">💡 API Key 可在 <a href="console.html">控制台 → API Keys</a> 页面创建和管理。请妥善保管，不要在前端代码中暴露。</div>
 
-<span class="cm"># Python</span>
-<span class="kw">pip install</span> xingapis-sdk</pre>
-                </div>
+            <!-- 模型列表 -->
+            <h2 id="models">🤖 模型列表</h2>
+            <p>获取可用模型列表：</p>
+            <pre><code>GET https://api.xinsuanji.cn/v1/models
+Headers:
+  Authorization: Bearer YOUR_API_KEY
 
-                <h3>3. 发起第一个请求</h3>
-                <div class="code-block">
-                    <pre>curl https://api.xinsuanji.cn/v1/chat/completions \
-  -H <span class="str">"Content-Type: application/json"</span> \
-  -H <span class="str">"Authorization: Bearer YOUR_API_KEY"</span> \
-  -d <span class="str">'{
-    "model": "gpt-4",
-    "messages": [{"role": "user", "content": "Hello!"}]
-  }'</span></pre>
-                </div>
+# 响应示例
+{
+  "object": "list",
+  "data": [
+    {
+      "id": "deepseek-v3",
+      "object": "model",
+      "created": 1234567890,
+      "owned_by": "deepseek"
+    }
+  ]
+}</code></pre>
 
-                <div class="tip">
-                    <p>💡 <strong>提示：</strong>我们的 API 接口与 OpenAI 完全兼容，如果您已经使用 OpenAI SDK，只需更改 base URL 和 API Key 即可。</p>
-                </div>
-            </section>
+            <h3>可用模型</h3>
+            <table>
+                <tr><th>模型 ID</th><th>提供商</th><th>类型</th><th>价格（输入/1M）</th></tr>
+                <tr><td><code>deepseek-v3</code></td><td>DeepSeek</td><td>对话</td><td>¥0.27</td></tr>
+                <tr><td><code>deepseek-r1</code></td><td>DeepSeek</td><td>推理</td><td>¥4.00</td></tr>
+                <tr><td><code>gpt-4o</code></td><td>OpenAI</td><td>多模态</td><td>¥17.15</td></tr>
+                <tr><td><code>claude-3.5-sonnet</code></td><td>Anthropic</td><td>对话</td><td>¥15.30</td></tr>
+                <tr><td><code>qwen3-235b</code></td><td>阿里云</td><td>推理</td><td>¥0.50</td></tr>
+                <tr><td><code>gemini-2.0-flash</code></td><td>Google</td><td>多模态</td><td>¥1.20</td></tr>
+            </table>
 
-            <section class="section" id="auth">
-                <h2>🔐 认证方式</h2>
-                <p>所有 API 请求都需要在 HTTP Header 中携带您的 API Key：</p>
-                
-                <div class="code-block">
-                    <pre>Authorization: Bearer <span class="str">YOUR_API_KEY</span></pre>
-                </div>
-
-                <div class="tip warning">
-                    <p>⚠️ <strong>警告：</strong>请勿在前端代码（浏览器、移动端 App）中硬编码 API Key！请在后端服务器中使用，或通过我们的代理服务。</p>
-                </div>
-            </section>
-
-            <section class="section" id="chat">
-                <h2>💬 对话补全 (Chat Completions)</h2>
-                <p>这是最核心的接口，用于与 AI 模型进行对话。</p>
-
-                <h3>HTTP 请求</h3>
-                <div class="code-block">
-                    <pre><span class="fn">POST</span> /v1/chat/completions
-<span class="kw">Content-Type:</span> application/json
-<span class="kw">Authorization:</span> Bearer YOUR_API_KEY
+            <!-- 对话生成 -->
+            <h2 id="chat">💬 对话生成</h2>
+            <p>与 AI 模型进行对话，支持多轮对话、流式输出。</p>
+            <pre><code>POST https://api.xinsuanji.cn/v1/chat/completions
+Content-Type: application/json
+Authorization: Bearer YOUR_API_KEY
 
 {
-  <span class="str">"model"</span>: <span class="str">"gpt-4"</span>,
-  <span class="str">"messages"</span>: [
-    {<span class="str">"role"</span>: <span class="str">"system"</span>, <span class="str">"content"</span>: <span class="str">"You are a helpful assistant."</span>},
-    {<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: <span class="str">"解释量子计算"</span>}
+  "model": "deepseek-v3",
+  "messages": [
+    {"role": "system", "content": "你是一个有帮助的助手。"},
+    {"role": "user", "content": "解释量子计算"}
   ],
-  <span class="str">"temperature"</span>: <span class="num">0.7</span>,
-  <span class="str">"max_tokens"</span>: <span class="num">1000</span>,
-  <span class="str">"stream"</span>: <span class="kw">false</span>
-}</pre>
-                </div>
+  "temperature": 0.7,
+  "max_tokens": 2000,
+  "stream": false
+}</code></pre>
+            <h3>请求参数</h3>
+            <table>
+                <tr><th>参数</th><th>类型</th><th>必需</th><th>说明</th></tr>
+                <tr><td><code>model</code></td><td>string</td><td>✓</td><td>模型 ID</td></tr>
+                <tr><td><code>messages</code></td><td>array</td><td>✓</td><td>对话消息列表</td></tr>
+                <tr><td><code>temperature</code></td><td>float</td><td></td><td>采样温度，0-2，默认 0.7</td></tr>
+                <tr><td><code>max_tokens</code></td><td>int</td><td></td><td>最大输出 Token 数</td></tr>
+                <tr><td><code>stream</code></td><td>bool</td><td></td><td>是否流式输出，默认 false</td></tr>
+            </table>
 
-                <h3>请求参数</h3>
-                <table class="param-table">
-                    <thead>
-                        <tr>
-                            <th>参数名</th>
-                            <th>类型</th>
-                            <th>必填</th>
-                            <th>说明</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><span class="param-name">model</span></td>
-                            <td><span class="param-type">string</span></td>
-                            <td><span class="required">必填</span></td>
-                            <td>模型名称，如 <code>gpt-4</code>, <code>claude-3-5-sonnet</code>, <code>gemini-pro</code></td>
-                        </tr>
-                        <tr>
-                            <td><span class="param-name">messages</span></td>
-                            <td><span class="param-type">array</span></td>
-                            <td><span class="required">必填</span></td>
-                            <td>对话消息数组，每个对象包含 <code>role</code> (system/user/assistant) 和 <code>content</code></td>
-                        </tr>
-                        <tr>
-                            <td><span class="param-name">temperature</span></td>
-                            <td><span class="param-type">number</span></td>
-                            <td><span class="optional">可选</span></td>
-                            <td>采样温度，0-2 之间，默认 0.7。越高越随机，越低越确定</td>
-                        </tr>
-                        <tr>
-                            <td><span class="param-name">max_tokens</span></td>
-                            <td><span class="param-type">integer</span></td>
-                            <td><span class="optional">可选</span></td>
-                            <td>最大生成 token 数，默认 1000</td>
-                        </tr>
-                        <tr>
-                            <td><span class="param-name">stream</span></td>
-                            <td><span class="param-type">boolean</span></td>
-                            <td><span class="optional">可选</span></td>
-                            <td>是否启用流式响应，默认 <code>false</code></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </section>
+            <!-- 文本嵌入 -->
+            <h2 id="embeddings">📊 文本嵌入</h2>
+            <pre><code>POST https://api.xinsuanji.cn/v1/embeddings
+Content-Type: application/json
+Authorization: Bearer YOUR_API_KEY
 
-            <section class="section" id="errors">
-                <h2>❌ 错误码说明</h2>
-                <table class="error-table">
-                    <thead>
-                        <tr>
-                            <th>HTTP 状态码</th>
-                            <th>错误码</th>
-                            <th>说明</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>400</td>
-                            <td><span class="error-code">invalid_request_error</span></td>
-                            <td>请求参数错误，请检查参数格式和类型</td>
-                        </tr>
-                        <tr>
-                            <td>401</td>
-                            <td><span class="error-code">authentication_error</span></td>
-                            <td>API Key 无效或已过期</td>
-                        </tr>
-                        <tr>
-                            <td>429</td>
-                            <td><span class="error-code">rate_limit_error</span></td>
-                            <td>超出频率限制，请稍后重试</td>
-                        </tr>
-                        <tr>
-                            <td>500</td>
-                            <td><span class="error-code">server_error</span></td>
-                            <td>服务器内部错误，请联系技术支持</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </section>
+{
+  "model": "text-embedding-3-small",
+  "input": "星算纪是 AI API 聚合平台"
+}</code></pre>
 
-            <footer>
-                <p>需要帮助？联系我们：support@xinsuanji.cn</p>
-                <p>© 2024 星算纪 · 一站式 AI API 聚合平台</p>
-            </footer>
+            <!-- 图像生成 -->
+            <h2 id="image">🎨 图像生成</h2>
+            <pre><code>POST https://api.xinsuanji.cn/v1/images/generations
+Content-Type: application/json
+Authorization: Bearer YOUR_API_KEY
+
+{
+  "model": "dall-e-3",
+  "prompt": "一只在星空下游泳的机器鱼，赛博朋克风格",
+  "n": 1,
+  "size": "1024x1024"
+}</code></pre>
+
+            <!-- 错误处理 -->
+            <h2 id="errors">⚠️ 错误处理</h2>
+            <p>所有错误响应均遵循 OpenAI 格式：</p>
+            <pre><code>{
+  "error": {
+    "message": "Insufficient balance",
+    "type": "insufficient_balance",
+    "code": "balance_insufficient"
+  }
+}</code></pre>
+            <h3>错误码说明</h3>
+            <table>
+                <tr><th>错误码</th><th>说明</th><th>HTTP 状态码</th></tr>
+                <tr><td><code>invalid_api_key</code></td><td>API Key 无效或已过期</td><td>401</td></tr>
+                <tr><td><code>insufficient_balance</code></td><td>账户余额不足</td><td>402</td></tr>
+                <tr><td><code>rate_limit_exceeded</code></td><td>超出限流配额</td><td>429</td></tr>
+                <tr><td><code>model_not_found</code></td><td>模型不存在或无权限</td><td>404</td></tr>
+                <tr><td><code>invalid_request</code></td><td>请求参数错误</td><td>400</td></tr>
+                <tr><td><code>upstream_error</code></td><td>上游服务商错误</td><td>502</td></tr>
+            </table>
+
+            <!-- 限流 -->
+            <h2 id="rate-limit">🚦 限流说明</h2>
+            <p>为保障服务稳定，平台对 API 调用实施限流：</p>
+            <table>
+                <tr><th>套餐</th><th>QPS（每秒请求数）</th><th>TPM（每分钟 Token）</th></tr>
+                <tr><td>免费版</td><td>3</td><td>50,000</td></tr>
+                <tr><td>基础版</td><td>10</td><td>200,000</td></tr>
+                <tr><td>专业版</td><td>50</td><td>1,000,000</td></tr>
+                <tr><td>企业版</td><td>自定义</td><td>自定义</td></tr>
+            </table>
+            <div class="warn">⚠️ 超出限流会返回 HTTP 429，并在 <code>Retry-After</code> Header 中告知等待秒数。</div>
+
+            <!-- SDK -->
+            <h2 id="sdk">📦 SDK 下载</h2>
+            <p>我们提供多语言 SDK，让您快速接入：</p>
+            <p><strong>Python</strong><br><code>pip install xinsuanji-sdk</code></p>
+            <p><strong>Node.js</strong><br><code>npm install @xinsuanji/sdk</code></p>
+            <p><strong>Go</strong><br><code>go get github.com/xinsuanji/go-sdk</code></p>
+            <p style="margin-top:2rem;"><a href="sdk.html" class="btn btn-primary" style="padding:0.8rem 2rem;border-radius:8px;">查看 SDK 文档 →</a></p>
+
+            <div style="margin-top:4rem;padding-top:2rem;border-top:1px solid rgba(0,229,255,0.1);color:rgba(255,255,255,0.3);font-size:0.9rem;">
+                需要帮助？联系 <a href="mailto:support@xinsuanji.cn">support@xinsuanji.cn</a>
+            </div>
         </main>
     </div>
-
-    <script>
-        // ============ 星空海洋画布 ============
-        const canvas = document.getElementById('starry-ocean');
-        const ctx = canvas.getContext('2d');
-        let stars = [];
-        let waves = [];
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-
-        class Star {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height * 0.7;
-                this.size = Math.random() * 2 + 0.5;
-                this.opacity = Math.random() * 0.8 + 0.2;
-                this.twinkleSpeed = Math.random() * 0.02 + 0.01;
-                this.twinklePhase = Math.random() * Math.PI * 2;
-            }
-            update() {
-                this.twinklePhase += this.twinkleSpeed;
-                this.opacity = 0.3 + 0.7 * Math.abs(Math.sin(this.twinklePhase));
-            }
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-                ctx.fill();
-            }
-        }
-
-        class Wave {
-            constructor(y, amplitude, frequency, speed, color) {
-                this.y = y;
-                this.amplitude = amplitude;
-                this.frequency = frequency;
-                this.speed = speed;
-                this.color = color;
-                this.phase = Math.random() * Math.PI * 2;
-            }
-            draw(time) {
-                ctx.beginPath();
-                ctx.moveTo(0, canvas.height);
-                for (let x = 0; x <= canvas.width; x += 5) {
-                    const y = this.y + Math.sin(x * this.frequency + time * this.speed + this.phase) * this.amplitude;
-                    ctx.lineTo(x, y);
-                }
-                ctx.lineTo(canvas.width, canvas.height);
-                ctx.closePath();
-                ctx.fillStyle = this.color;
-                ctx.fill();
-            }
-        }
-
-        for (let i = 0; i < 150; i++) stars.push(new Star());
-        waves.push(new Wave(canvas.height * 0.75, 30, 0.005, 0.02, 'rgba(0, 229, 255, 0.06)'));
-        waves.push(new Wave(canvas.height * 0.80, 25, 0.004, 0.015, 'rgba(124, 58, 237, 0.05)'));
-        waves.push(new Wave(canvas.height * 0.85, 20, 0.006, 0.025, 'rgba(0, 229, 255, 0.04)'));
-
-        let time = 0;
-        function animateOcean() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, '#0a1628');
-            gradient.addColorStop(0.5, '#0d2137');
-            gradient.addColorStop(1, '#0a1628');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            stars.forEach(star => {
-                star.update();
-                star.draw();
-            });
-
-            time += 1;
-            waves.forEach(wave => wave.draw(time));
-
-            requestAnimationFrame(animateOcean);
-        }
-        animateOcean();
-
-        // ============ 星光层 ============
-        const starsLayer = document.getElementById('stars-layer');
-        for (let i = 0; i < 40; i++) {
-            const star = document.createElement('div');
-            star.className = 'star';
-            star.style.left = Math.random() * 100 + '%';
-            star.style.top = Math.random() * 70 + '%';
-            star.style.width = Math.random() * 3 + 1 + 'px';
-            star.style.height = star.style.width;
-            star.style.setProperty('--duration', Math.random() * 3 + 2 + 's');
-            star.style.setProperty('--opacity-min', Math.random() * 0.3 + 0.2);
-            starsLayer.appendChild(star);
-        }
-
-        // ============ 游动的鱼 ============
-        const fishContainer = document.getElementById('fish-container');
-        
-        function createFish() {
-            const fish = document.createElement('div');
-            fish.className = 'fish';
-            
-            const size = Math.random() * 25 + 15;
-            const colors = [
-                ['#00e5ff', '#00b8d4'],
-                ['#7c3aed', '#5b21b6'],
-                ['#fbbf24', '#f59e0b'],
-                ['#06b6d4', '#0891b2']
-            ];
-            const colorPair = colors[Math.floor(Math.random() * colors.length)];
-            
-            fish.style.setProperty('--fish-size', size + 'px');
-            fish.style.setProperty('--fish-color-1', colorPair[0]);
-            fish.style.setProperty('--fish-color-2', colorPair[1]);
-            fish.style.setProperty('--fish-glow', colorPair[0]);
-            fish.style.setProperty('--swim-duration', Math.random() * 18 + 22 + 's');
-            fish.style.left = '-100px';
-            fish.style.top = Math.random() * 80 + 10 + '%';
-            fish.style.animationDelay = Math.random() * 8 + 's';
-            
-            fish.innerHTML = `
-                <div class="fish-body">
-                    <div class="fish-eye"></div>
-                    <div class="fish-tail"></div>
-                </div>
-            `;
-            
-            fishContainer.appendChild(fish);
-            
-            setTimeout(() => {
-                if (fish.parentNode) fish.parentNode.removeChild(fish);
-            }, 40000);
-        }
-
-        setInterval(createFish, 4000);
-        for (let i = 0; i < 4; i++) {
-            setTimeout(createFish, i * 1000);
-        }
-
-        // ============ 气泡 ============
-        const bubblesContainer = document.getElementById('bubbles-container');
-        
-        function createBubble() {
-            const bubble = document.createElement('div');
-            bubble.className = 'bubble';
-            
-            const size = Math.random() * 18 + 5;
-            bubble.style.width = size + 'px';
-            bubble.style.height = size + 'px';
-            bubble.style.left = Math.random() * 100 + '%';
-            bubble.style.setProperty('--rise-duration', Math.random() * 8 + 6 + 's');
-            bubble.style.setProperty('--drift', (Math.random() - 0.5) * 80 + 'px');
-            
-            bubblesContainer.appendChild(bubble);
-            
-            setTimeout(() => {
-                if (bubble.parentNode) bubble.parentNode.removeChild(bubble);
-            }, 15000);
-        }
-
-        setInterval(createBubble, 2500);
-        for (let i = 0; i < 6; i++) {
-            setTimeout(createBubble, i * 600);
-        }
-
-        // ============ 侧边栏高亮 ============
-        const sections = document.querySelectorAll('.section');
-        const navLinks = document.querySelectorAll('.sidebar-links a');
-
-        window.addEventListener('scroll', () => {
-            let current = '';
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop - 120;
-                if (window.scrollY >= sectionTop) {
-                    current = section.getAttribute('id');
-                }
-            });
-
-            navLinks.forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href') === `#${current}`) {
-                    link.classList.add('active');
-                }
-            });
-        });
-    </script>
 </body>
 </html>

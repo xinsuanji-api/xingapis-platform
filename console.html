@@ -1,701 +1,492 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>用户控制台 - 星算纪 API 平台</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>控制台 - 星算纪</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <style>
+        :root { --ocean-deep: #0a1628; --ocean-mid: #0d2137; --cyan-glow: #00e5ff; --purple-dream: #7c3aed; --success: #00ff88; --warning: #fbbf24; --danger: #ef4444; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'SF Pro Display', -apple-system, sans-serif; background: var(--ocean-deep); color: #e2e8f0; min-height: 100vh; }
+        
+        /* 导航 */
+        nav { position: fixed; top: 0; left: 0; right: 0; padding: 1rem 3rem; display: flex; justify-content: space-between; align-items: center; z-index: 100; background: rgba(10, 22, 40, 0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0, 229, 255, 0.2); }
+        .logo { font-size: 1.6rem; font-weight: 800; }
+        .logo span { background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; }
+        .nav-links a { color: rgba(255, 255, 255, 0.6); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--cyan-glow); }
+        .nav-links a.active { color: var(--cyan-glow); }
+        .user-menu { display: flex; align-items: center; gap: 1rem; }
+        .user-email { color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; }
+        .btn-logout { padding: 0.5rem 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; color: var(--danger); cursor: pointer; font-size: 0.85rem; transition: all 0.3s; }
+        .btn-logout:hover { background: rgba(239, 68, 68, 0.2); }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: linear-gradient(135deg, #0a1628 0%, #0d2137 100%);
-      color: #e2e8f0;
-      line-height: 1.6;
-      min-height: 100vh;
-    }
+        /* 主内容 */
+        .main { padding: 6rem 3rem 3rem; max-width: 1400px; margin: 0 auto; }
+        
+        /* 概览卡片 */
+        .overview { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+        .overview-card { background: rgba(13, 33, 55, 0.8); border: 1px solid rgba(0, 229, 255, 0.15); border-radius: 16px; padding: 2rem; transition: all 0.3s; }
+        .overview-card:hover { border-color: rgba(0, 229, 255, 0.4); transform: translateY(-3px); }
+        .overview-card .label { color: rgba(255, 255, 255, 0.5); font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .overview-card .value { font-size: 2.2rem; font-weight: 800; color: var(--cyan-glow); font-variant-numeric: tabular-nums; }
+        .overview-card .sub { color: rgba(255, 255, 255, 0.4); font-size: 0.85rem; margin-top: 0.5rem; }
 
-    .header {
-      background: rgba(15, 23, 42, 0.9);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(0, 229, 255, 0.2);
-      padding: 1.5rem 3rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
+        /* 功能区 */
+        .section { background: rgba(13, 33, 55, 0.8); border: 1px solid rgba(0, 229, 255, 0.15); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .section-title { font-size: 1.3rem; font-weight: 700; color: #ffffff; }
+        .btn { padding: 0.6rem 1.5rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.3s; border: none; }
+        .btn-primary { background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream)); color: #000; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0, 229, 255, 0.3); }
+        .btn-ghost { background: transparent; border: 1px solid rgba(0, 229, 255, 0.3); color: var(--cyan-glow); }
+        .btn-ghost:hover { background: rgba(0, 229, 255, 0.1); }
+        .btn-danger { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--danger); }
+        .btn-danger:hover { background: rgba(239, 68, 68, 0.2); }
+        .btn-sm { padding: 0.4rem 1rem; font-size: 0.85rem; }
 
-    .logo {
-      font-size: 1.8rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, #00e5ff, #7c3aed);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
+        /* API Key 列表 */
+        .key-list { display: flex; flex-direction: column; gap: 1rem; }
+        .key-item { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 1.5rem; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(0, 229, 255, 0.1); border-radius: 12px; transition: all 0.3s; }
+        .key-item:hover { border-color: rgba(0, 229, 255, 0.3); }
+        .key-info { display: flex; flex-direction: column; gap: 0.3rem; }
+        .key-name { font-weight: 600; color: #ffffff; font-size: 1rem; }
+        .key-value { font-family: 'Courier New', monospace; font-size: 0.85rem; color: var(--cyan-glow); background: rgba(0, 229, 255, 0.05); padding: 0.3rem 0.8rem; border-radius: 6px; cursor: pointer; }
+        .key-meta { display: flex; gap: 1.5rem; color: rgba(255, 255, 255, 0.4); font-size: 0.85rem; margin-top: 0.3rem; }
+        .key-actions { display: flex; gap: 0.5rem; }
 
-    .user-menu {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-    }
+        /* 模型列表 */
+        .model-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+        .model-item { padding: 1.2rem; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(0, 229, 255, 0.1); border-radius: 12px; cursor: pointer; transition: all 0.3s; }
+        .model-item:hover { border-color: rgba(0, 229, 255, 0.4); transform: translateY(-2px); }
+        .model-item.selected { border-color: var(--cyan-glow); background: rgba(0, 229, 255, 0.05); }
+        .model-name { font-weight: 600; color: #ffffff; margin-bottom: 0.3rem; }
+        .model-provider { color: var(--purple-dream); font-size: 0.85rem; }
+        .model-price { color: var(--warning); font-size: 0.85rem; margin-top: 0.5rem; }
 
-    .user-email {
-      color: #94a3b8;
-      font-size: 0.95rem;
-    }
+        /* 使用记录 */
+        .log-table { width: 100%; border-collapse: collapse; }
+        .log-table th { text-align: left; padding: 1rem; color: rgba(255, 255, 255, 0.5); font-size: 0.85rem; font-weight: 500; border-bottom: 1px solid rgba(0, 229, 255, 0.1); }
+        .log-table td { padding: 1rem; color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .log-table tr:hover td { background: rgba(0, 229, 255, 0.02); }
+        .status-ok { color: var(--success); }
+        .status-err { color: var(--danger); }
 
-    .btn-logout {
-      padding: 0.6rem 1.5rem;
-      background: rgba(239, 68, 68, 0.2);
-      color: #ef4444;
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-size: 0.95rem;
-    }
+        /* 弹窗 */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: var(--ocean-mid); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 16px; padding: 2.5rem; max-width: 500px; width: 90%; }
+        .modal-title { font-size: 1.3rem; font-weight: 700; color: #ffffff; margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .form-group input, .form-group select { width: 100%; padding: 0.8rem 1rem; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 8px; color: #ffffff; font-size: 1rem; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--cyan-glow); }
+        .modal-actions { display: flex; gap: 1rem; justify-content: flex-end; }
 
-    .btn-logout:hover {
-      background: rgba(239, 68, 68, 0.3);
-      transform: translateY(-2px);
-    }
+        /* Tab */
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 2rem; border-bottom: 1px solid rgba(0, 229, 255, 0.1); padding-bottom: 1rem; }
+        .tab { padding: 0.6rem 1.5rem; border-radius: 8px; cursor: pointer; color: rgba(255, 255, 255, 0.5); font-size: 0.9rem; font-weight: 500; transition: all 0.3s; }
+        .tab.active { background: rgba(0, 229, 255, 0.1); color: var(--cyan-glow); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
 
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 3rem 2rem;
-    }
-
-    .page-title {
-      font-size: 2.5rem;
-      color: #00e5ff;
-      margin-bottom: 0.5rem;
-      text-shadow: 0 0 20px rgba(0, 229, 255, 0.5);
-    }
-
-    .page-subtitle {
-      color: #94a3b8;
-      font-size: 1.1rem;
-      margin-bottom: 3rem;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 2rem;
-      margin-bottom: 3rem;
-    }
-
-    .stat-card {
-      background: rgba(15, 23, 42, 0.8);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(0, 229, 255, 0.2);
-      border-radius: 16px;
-      padding: 2rem;
-      transition: all 0.3s;
-    }
-
-    .stat-card:hover {
-      border-color: #00e5ff;
-      box-shadow: 0 0 30px rgba(0, 229, 255, 0.3);
-      transform: translateY(-5px);
-    }
-
-    .stat-label {
-      color: #64748b;
-      font-size: 0.9rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .stat-value {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: #00e5ff;
-      margin-bottom: 0.5rem;
-    }
-
-    .stat-desc {
-      color: #94a3b8;
-      font-size: 0.85rem;
-    }
-
-    .section {
-      background: rgba(15, 23, 42, 0.8);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(0, 229, 255, 0.2);
-      border-radius: 16px;
-      padding: 2.5rem;
-      margin-bottom: 3rem;
-    }
-
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-
-    .section-title {
-      font-size: 1.8rem;
-      color: #7c3aed;
-    }
-
-    .btn {
-      padding: 0.8rem 2rem;
-      background: linear-gradient(135deg, #00e5ff, #7c3aed);
-      color: white;
-      border: none;
-      border-radius: 25px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-size: 0.95rem;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 20px rgba(0, 229, 255, 0.4);
-    }
-
-    .btn-secondary {
-      background: rgba(0, 229, 255, 0.1);
-      color: #00e5ff;
-      border: 1px solid rgba(0, 229, 255, 0.3);
-    }
-
-    .btn-danger {
-      background: rgba(239, 68, 68, 0.2);
-      color: #ef4444;
-      border: 1px solid rgba(239, 68, 68, 0.3);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th {
-      text-align: left;
-      padding: 1rem;
-      color: #64748b;
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border-bottom: 1px solid rgba(0, 229, 255, 0.1);
-    }
-
-    td {
-      padding: 1rem;
-      color: #e2e8f0;
-      border-bottom: 1px solid rgba(0, 229, 255, 0.05);
-    }
-
-    tr:hover {
-      background: rgba(0, 229, 255, 0.05);
-    }
-
-    .api-key-cell {
-      font-family: "Courier New", monospace;
-      color: #00e5ff;
-      font-size: 0.9rem;
-    }
-
-    .status-badge {
-      display: inline-block;
-      padding: 0.3rem 0.8rem;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 600;
-    }
-
-    .status-active {
-      background: rgba(34, 197, 94, 0.2);
-      color: #22c55e;
-    }
-
-    .status-inactive {
-      background: rgba(239, 68, 68, 0.2);
-      color: #ef4444;
-    }
-
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal.active {
-      display: flex;
-    }
-
-    .modal-content {
-      background: #0f172a;
-      border: 1px solid rgba(0, 229, 255, 0.3);
-      border-radius: 16px;
-      padding: 3rem;
-      max-width: 500px;
-      width: 90%;
-    }
-
-    .modal-title {
-      font-size: 1.5rem;
-      color: #00e5ff;
-      margin-bottom: 2rem;
-    }
-
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
-
-    .form-label {
-      display: block;
-      color: #94a3b8;
-      margin-bottom: 0.5rem;
-      font-size: 0.95rem;
-    }
-
-    .form-input {
-      width: 100%;
-      padding: 0.8rem 1rem;
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(0, 229, 255, 0.2);
-      border-radius: 8px;
-      color: #e2e8f0;
-      font-size: 0.95rem;
-    }
-
-    .form-input:focus {
-      outline: none;
-      border-color: #00e5ff;
-      box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
-    }
-
-    .modal-actions {
-      display: flex;
-      gap: 1rem;
-      margin-top: 2rem;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 3rem;
-      color: #94a3b8;
-    }
-
-    .error {
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      border-radius: 8px;
-      padding: 1rem;
-      color: #ef4444;
-      margin-bottom: 2rem;
-    }
-
-    .success {
-      background: rgba(34, 197, 94, 0.1);
-      border: 1px solid rgba(34, 197, 94, 0.3);
-      border-radius: 8px;
-      padding: 1rem;
-      color: #22c55e;
-      margin-bottom: 2rem;
-    }
-
-    .api-key-display {
-      background: rgba(0, 0, 0, 0.5);
-      padding: 1rem;
-      border-radius: 8px;
-      font-family: "Courier New", monospace;
-      color: #00ff00;
-      word-break: break-all;
-      margin-top: 1rem;
-      border: 1px solid rgba(0, 229, 255, 0.2);
-    }
-
-    .warning-box {
-      background: rgba(234, 179, 8, 0.1);
-      border: 1px solid rgba(234, 179, 8, 0.3);
-      border-radius: 8px;
-      padding: 1rem;
-      margin-top: 1rem;
-    }
-
-    .warning-text {
-      color: #eab308;
-      font-size: 0.9rem;
-    }
-
-    @media (max-width: 768px) {
-      .header {
-        padding: 1rem;
-      }
-
-      .container {
-        padding: 2rem 1rem;
-      }
-
-      .stats-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .section {
-        padding: 1.5rem;
-      }
-
-      table {
-        display: block;
-        overflow-x: auto;
-      }
-    }
-  </style>
+        .empty-state { text-align: center; padding: 4rem 2rem; color: rgba(255, 255, 255, 0.4); }
+        .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+    </style>
 </head>
 <body>
-  <!-- 头部导航 -->
-  <header class="header">
-    <div class="logo">🚀 星算纪 API 平台</div>
-    <div class="user-menu">
-      <span class="user-email" id="user-email">加载中...</span>
-      <button class="btn-logout" id="btn-logout">退出登录</button>
-    </div>
-  </header>
-
-  <div class="container">
-    <h1 class="page-title">用户控制台</h1>
-    <p class="page-subtitle">管理您的 API Keys、查看用量统计</p>
-
-    <!-- 统计卡片 -->
-    <div class="stats-grid" id="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">总配额</div>
-        <div class="stat-value" id="stat-total-quota">-</div>
-        <div class="stat-desc">Token 数</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">已使用</div>
-        <div class="stat-value" id="stat-used">-</div>
-        <div class="stat-desc">Token 数</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">剩余配额</div>
-        <div class="stat-value" id="stat-remaining">-</div>
-        <div class="stat-desc">Token 数</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">API Keys</div>
-        <div class="stat-value" id="stat-keys-count">-</div>
-        <div class="stat-desc">个激活的 Key</div>
-      </div>
-    </div>
-
-    <!-- API Keys 列表 -->
-    <div class="section">
-      <div class="section-header">
-        <h2 class="section-title">🔑 API Keys</h2>
-        <button class="btn" id="btn-create-key">+ 创建 API Key</button>
-      </div>
-      <div id="apikeys-list">
-        <div class="loading">加载中...</div>
-      </div>
-    </div>
-
-    <!-- 使用趋势（最近 30 天） -->
-    <div class="section">
-      <div class="section-header">
-        <h2 class="section-title">📊 使用趋势（最近 30 天）</h2>
-      </div>
-      <div id="usage-chart">
-        <div class="loading">加载中...</div>
-      </div>
-    </div>
-
-    <!-- 热门 API -->
-    <div class="section">
-      <div class="section-header">
-        <h2 class="section-title">🔥 热门 API</h2>
-      </div>
-      <div id="top-apis">
-        <div class="loading">加载中...</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 创建 API Key 模态框 -->
-  <div class="modal" id="modal-create-key">
-    <div class="modal-content">
-      <h3 class="modal-title">创建新的 API Key</h3>
-      <form id="form-create-key">
-        <div class="form-group">
-          <label class="form-label" for="key-name">API Key 名称 *</label>
-          <input type="text" class="form-input" id="key-name" placeholder="例如：我的第一个 Key" required>
+    <nav>
+        <div class="logo">星算<span>纪</span></div>
+        <ul class="nav-links">
+            <li><a href="index.html">首页</a></li>
+            <li><a href="models.html">模型</a></li>
+            <li><a href="pricing.html">价格</a></li>
+            <li><a href="docs.html">文档</a></li>
+            <li><a href="console.html" class="active">控制台</a></li>
+        </ul>
+        <div class="user-menu">
+            <span class="user-email" id="user-email">加载中...</span>
+            <button class="btn-logout" onclick="logout()">退出</button>
         </div>
-        <div class="modal-actions">
-          <button type="submit" class="btn">创建</button>
-          <button type="button" class="btn btn-secondary" id="btn-cancel-create">取消</button>
+    </nav>
+
+    <div class="main">
+        <!-- 概览 -->
+        <div class="overview">
+            <div class="overview-card">
+                <div class="label">账户余额</div>
+                <div class="value" id="balance">¥0.00</div>
+                <div class="sub"><a href="#billing" style="color:var(--cyan-glow);text-decoration:none;">充值 →</a></div>
+            </div>
+            <div class="overview-card">
+                <div class="label">API Keys</div>
+                <div class="value" id="key-count">0</div>
+                <div class="sub">个有效密钥</div>
+            </div>
+            <div class="overview-card">
+                <div class="label">本月调用</div>
+                <div class="value" id="month-calls">0</div>
+                <div class="sub">次请求</div>
+            </div>
+            <div class="overview-card">
+                <div class="label">本月消耗</div>
+                <div class="value" id="month-cost">¥0.00</div>
+                <div class="sub">Token 费用</div>
+            </div>
         </div>
-      </form>
+
+        <!-- Tab 切换 -->
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('keys')">API Keys</div>
+            <div class="tab" onclick="switchTab('models')">可用模型</div>
+            <div class="tab" onclick="switchTab('logs')">调用记录</div>
+            <div class="tab" onclick="switchTab('billing')">充值记录</div>
+        </div>
+
+        <!-- API Keys -->
+        <div class="tab-content active" id="tab-keys">
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">API Keys</div>
+                    <button class="btn btn-primary" onclick="showCreateKeyModal()">+ 创建 API Key</button>
+                </div>
+                <div id="keys-list" class="key-list">
+                    <div class="empty-state" id="keys-empty">
+                        <div class="icon">🔑</div>
+                        <p>还没有 API Key</p>
+                        <p style="margin-top:0.5rem;font-size:0.9rem;">创建一个 Key 开始调用 API</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 可用模型 -->
+        <div class="tab-content" id="tab-models">
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">可用模型</div>
+                </div>
+                <div id="models-list" class="model-list">
+                    <div class="empty-state" id="models-empty">
+                        <div class="icon">🤖</div>
+                        <p>加载中...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 调用记录 -->
+        <div class="tab-content" id="tab-logs">
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">最近调用记录</div>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="log-table" id="logs-table">
+                        <thead>
+                            <tr>
+                                <th>时间</th>
+                                <th>模型</th>
+                                <th>类型</th>
+                                <th>Token 用量</th>
+                                <th>费用</th>
+                                <th>状态</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logs-body">
+                            <tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,0.4);padding:3rem;">暂无记录</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 充值记录 -->
+        <div class="tab-content" id="tab-billing">
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">充值记录</div>
+                    <button class="btn btn-primary" onclick="alert('充值功能即将上线，请联系客服')">充值</button>
+                </div>
+                <div id="billing-list">
+                    <div class="empty-state">
+                        <div class="icon">💰</div>
+                        <p>暂无充值记录</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- 显示新创建的 API Key 模态框 -->
-  <div class="modal" id="modal-show-key">
-    <div class="modal-content">
-      <h3 class="modal-title">✅ API Key 创建成功！</h3>
-      <div class="success">
-        <p><strong>请妥善保管！此 Key 只显示一次。</strong></p>
-      </div>
-      <div class="api-key-display" id="new-api-key"></div>
-      <div class="warning-box">
-        <p class="warning-text">⚠️ 请立即复制并保存到安全的地方。关闭此窗口后将无法再次查看完整 Key。</p>
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="btn" id="btn-copy-key">复制 Key</button>
-        <button type="button" class="btn btn-secondary" id="btn-close-show-key">关闭</button>
-      </div>
+    <!-- 创建 API Key 弹窗 -->
+    <div class="modal-overlay" id="create-key-modal">
+        <div class="modal">
+            <div class="modal-title">创建 API Key</div>
+            <div class="form-group">
+                <label>Key 名称</label>
+                <input type="text" id="key-name" placeholder="例如：我的应用 Key">
+            </div>
+            <div class="form-group">
+                <label>权限范围</label>
+                <select id="key-scope">
+                    <option value="all">全部模型</option>
+                    <option value="chat">仅对话模型</option>
+                    <option value="image">仅图像模型</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" onclick="hideCreateKeyModal()">取消</button>
+                <button class="btn btn-primary" onclick="createApiKey()">创建</button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <script>
-    // Supabase 配置（替换为您的配置）
-    const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+    <!-- 显示 Key 弹窗 -->
+    <div class="modal-overlay" id="show-key-modal">
+        <div class="modal">
+            <div class="modal-title">⚠️ 请保存您的 API Key</div>
+            <p style="color:rgba(255,255,255,0.6);margin-bottom:1.5rem;font-size:0.9rem;">Key 只会显示一次，请妥善保管！</p>
+            <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(0,229,255,0.2);border-radius:8px;padding:1rem;font-family:'Courier New',monospace;color:var(--cyan-glow);word-break:break-all;margin-bottom:1.5rem;" id="new-key-value"></div>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" onclick="copyKey()">复制 Key</button>
+                <button class="btn btn-primary" onclick="hideShowKeyModal()">我已保存</button>
+            </div>
+        </div>
+    </div>
 
-    // 初始化 Supabase 客户端
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    <script>
+        let currentUser = null;
+        let apiKeys = [];
+        let models = [];
 
-    // DOM 元素
-    const userEmailEl = document.getElementById('user-email');
-    const btnLogout = document.getElementById('btn-logout');
-    const statsGrid = document.getElementById('stats-grid');
-    const apikeysList = document.getElementById('apikeys-list');
-    const usageChart = document.getElementById('usage-chart');
-    const topApis = document.getElementById('top-apis');
-    const btnCreateKey = document.getElementById('btn-create-key');
-    const modalCreateKey = document.getElementById('modal-create-key');
-    const btnCancelCreate = document.getElementById('btn-cancel-create');
-    const formCreateKey = document.getElementById('form-create-key');
-    const modalShowKey = document.getElementById('modal-show-key');
-    const newApiKeyEl = document.getElementById('new-api-key');
-    const btnCopyKey = document.getElementById('btn-copy-key');
-    const btnCloseShowKey = document.getElementById('btn-close-show-key');
+        // 初始化
+        async function init() {
+            const { data: { user }, error } = await supabase.auth.getUser();
+            if (error || !user) {
+                window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
+                return;
+            }
+            currentUser = user;
+            document.getElementById('user-email').textContent = user.email;
+            await loadUserData();
+            await loadApiKeys();
+            await loadModels();
+            await loadLogs();
+        }
 
-    // 检查登录状态
-    async function checkAuth() {
-      const { data: { user }, error } = await supabase.auth.getUser();
+        // 加载用户数据
+        async function loadUserData() {
+            const { data, error } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', currentUser.id)
+                .single();
+            
+            if (data) {
+                document.getElementById('balance').textContent = '¥' + (data.balance || 0).toFixed(2);
+            }
+        }
 
-      if (error || !user) {
-        // 未登录，跳转到登录页
-        window.location.href = '/login';
-        return null;
-      }
+        // 加载 API Keys
+        async function loadApiKeys() {
+            const { data, error } = await supabase
+                .from('api_keys')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .eq('is_active', true)
+                .order('created_at', { ascending: false });
+            
+            if (error) {
+                console.error('加载 API Keys 失败:', error);
+                return;
+            }
 
-      userEmailEl.textContent = user.email;
-      return user;
-    }
+            apiKeys = data || [];
+            document.getElementById('key-count').textContent = apiKeys.length;
+            renderApiKeys();
+        }
 
-    // 加载用户统计
-    async function loadUserStats() {
-      const { data, error } = await supabase.functions.invoke('user-stats');
+        // 渲染 API Keys
+        function renderApiKeys() {
+            const container = document.getElementById('keys-list');
+            const empty = document.getElementById('keys-empty');
+            
+            if (apiKeys.length === 0) {
+                empty.style.display = 'block';
+                return;
+            }
+            
+            empty.style.display = 'none';
+            container.innerHTML = apiKeys.map(key => `
+                <div class="key-item">
+                    <div class="key-info">
+                        <div class="key-name">${key.name || '未命名'}</div>
+                        <div class="key-value" onclick="copyText('${key.key}')" title="点击复制">${key.key}</div>
+                        <div class="key-meta">
+                            <span>创建: ${new Date(key.created_at).toLocaleDateString()}</span>
+                            <span>调用: ${key.call_count || 0} 次</span>
+                        </div>
+                    </div>
+                    <div class="key-actions">
+                        <button class="btn btn-sm btn-danger" onclick="deleteKey('${key.id}')">删除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-      if (error) {
-        console.error('加载统计失败:', error);
-        return;
-      }
+        // 创建 API Key
+        async function createApiKey() {
+            const name = document.getElementById('key-name').value.trim();
+            if (!name) { alert('请输入 Key 名称'); return; }
 
-      const stats = data.data;
+            // 生成 Key
+            const key = 'sk-' + Array.from(crypto.getRandomValues(new Uint8Array(32)))
+                .map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 48);
 
-      // 更新统计卡片
-      document.getElementById('stat-total-quota').textContent = formatNumber(stats.quota.total);
-      document.getElementById('stat-used').textContent = formatNumber(stats.quota.used);
-      document.getElementById('stat-remaining').textContent = formatNumber(stats.quota.remaining);
-      document.getElementById('stat-keys-count').textContent = stats.api_keys.active;
+            const { data, error } = await supabase
+                .from('api_keys')
+                .insert([{
+                    user_id: currentUser.id,
+                    key: key,
+                    name: name,
+                    scope: document.getElementById('key-scope').value,
+                    is_active: true
+                }])
+                .select()
+                .single();
+            
+            if (error) {
+                alert('创建失败: ' + error.message);
+                return;
+            }
 
-      // 更新使用趋势（简化版，实际应该画图表）
-      if (stats.usage_30d.daily_breakdown) {
-        const days = Object.keys(stats.usage_30d.daily_breakdown).length;
-        usageChart.innerHTML = `
-          <p style="color: #94a3b8;">最近 30 天共调用 <strong style="color: #00e5ff;">${stats.usage_30d.total_requests}</strong> 次请求，消耗 <strong style="color: #00e5ff;">${formatNumber(stats.usage_30d.total_tokens)}</strong> Tokens，成本 <strong style="color: #00e5ff;">¥${stats.usage_30d.total_cost.toFixed(2)}</strong>。</p>
-        `;
-      }
+            hideCreateKeyModal();
+            showNewKey(key);
+            await loadApiKeys();
+        }
 
-      // 更新热门 API
-      if (stats.top_apis && stats.top_apis.length > 0) {
-        topApis.innerHTML = `
-          <table>
-            <thead>
-              <tr>
-                <th>API</th>
-                <th>调用次数</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${stats.top_apis.map(api => `
+        // 显示新 Key
+        function showNewKey(key) {
+            document.getElementById('new-key-value').textContent = key;
+            document.getElementById('show-key-modal').classList.add('active');
+        }
+
+        // 复制 Key
+        function copyKey() {
+            const key = document.getElementById('new-key-value').textContent;
+            navigator.clipboard.writeText(key).then(() => alert('已复制！'));
+        }
+
+        // 删除 Key
+        async function deleteKey(keyId) {
+            if (!confirm('确定删除此 API Key？')) return;
+            
+            const { error } = await supabase
+                .from('api_keys')
+                .update({ is_active: false })
+                .eq('id', keyId);
+            
+            if (error) {
+                alert('删除失败: ' + error.message);
+                return;
+            }
+
+            await loadApiKeys();
+        }
+
+        // 加载模型列表
+        async function loadModels() {
+            const { data, error } = await supabase
+                .from('models')
+                .select('*')
+                .eq('is_active', true)
+                .order('sort_order');
+            
+            if (error) {
+                console.error('加载模型失败:', error);
+                return;
+            }
+
+            models = data || [];
+            renderModels();
+        }
+
+        // 渲染模型列表
+        function renderModels() {
+            const container = document.getElementById('models-list');
+            const empty = document.getElementById('models-empty');
+            
+            if (models.length === 0) {
+                empty.style.display = 'block';
+                return;
+            }
+            
+            empty.style.display = 'none';
+            container.innerHTML = models.map(m => `
+                <div class="model-item">
+                    <div class="model-name">${m.display_name || m.name}</div>
+                    <div class="model-provider">${m.provider || '未知'}</div>
+                    <div class="model-price">¥${(m.price_input || 0).toFixed(2)}/1M input · ¥${(m.price_output || 0).toFixed(2)}/1M output</div>
+                </div>
+            `).join('');
+        }
+
+        // 加载调用记录
+        async function loadLogs() {
+            const { data, error } = await supabase
+                .from('request_logs')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .order('created_at', { ascending: false })
+                .limit(50);
+            
+            if (error) return;
+
+            const tbody = document.getElementById('logs-body');
+            if (!data || data.length === 0) return;
+            
+            tbody.innerHTML = data.map(log => `
                 <tr>
-                  <td class="api-key-cell">${api.api}</td>
-                  <td>${api.count}</td>
+                    <td>${new Date(log.created_at).toLocaleString()}</td>
+                    <td>${log.model || '-'}</td>
+                    <td>${log.type || '-'}</td>
+                    <td>${(log.input_tokens || 0).toLocaleString()} in / ${(log.output_tokens || 0).toLocaleString()} out</td>
+                    <td>¥${(log.cost || 0).toFixed(4)}</td>
+                    <td class="${log.status === 'success' ? 'status-ok' : 'status-err'}">${log.status === 'success' ? '成功' : '失败'}</td>
                 </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        `;
-      } else {
-        topApis.innerHTML = '<p style="color: #94a3b8;">暂无数据</p>';
-      }
-    }
+            `).join('');
 
-    // 加载 API Keys 列表
-    async function loadApiKeys() {
-      const { data, error } = await supabase.functions.invoke('api-keys');
+            // 更新统计
+            const thisMonth = data.filter(l => new Date(l.created_at).getMonth() === new Date().getMonth());
+            document.getElementById('month-calls').textContent = thisMonth.length;
+            document.getElementById('month-cost').textContent = '¥' + thisMonth.reduce((s, l) => s + (l.cost || 0), 0).toFixed(2);
+        }
 
-      if (error) {
-        apikeysList.innerHTML = `<div class="error">加载失败: ${error.message}</div>`;
-        return;
-      }
+        // Tab 切换
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tab).classList.add('active');
+        }
 
-      const keys = data.data;
+        // 弹窗控制
+        function showCreateKeyModal() { document.getElementById('create-key-modal').classList.add('active'); }
+        function hideCreateKeyModal() { document.getElementById('create-key-modal').classList.remove('active'); }
+        function hideShowKeyModal() { document.getElementById('show-key-modal').classList.remove('active'); }
+        function copyText(text) { navigator.clipboard.writeText(text).then(() => alert('已复制！')); }
 
-      if (keys.length === 0) {
-        apikeysList.innerHTML = '<p style="color: #94a3b8;">暂无 API Keys，点击上方按钮创建。</p>';
-        return;
-      }
+        // 退出登录
+        async function logout() {
+            await supabase.auth.signOut();
+            window.location.href = 'index.html';
+        }
 
-      apikeysList.innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th>名称</th>
-              <th>API Key</th>
-              <th>状态</th>
-              <th>配额使用</th>
-              <th>最后使用</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${keys.map(key => `
-              <tr>
-                <td>${key.name}</td>
-                <td class="api-key-cell">${key.key_prefix}...</td>
-                <td><span class="status-badge ${key.is_active ? 'status-active' : 'status-inactive'}">${key.is_active ? '激活' : '禁用'}</span></td>
-                <td>${formatNumber(key.quota_used)} / ${formatNumber(key.quota_total)}</td>
-                <td>${key.last_used_at ? new Date(key.last_used_at).toLocaleString('zh-CN') : '从未使用'}</td>
-                <td><button class="btn btn-danger" onclick="deleteKey('${key.id}')">删除</button></td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      `;
-    }
-
-    // 创建 API Key
-    async function createKey(name) {
-      const { data, error } = await supabase.functions.invoke('api-keys', {
-        body: { name }
-      });
-
-      if (error) {
-        alert(`创建失败: ${error.message}`);
-        return null;
-      }
-
-      return data.data;
-    }
-
-    // 删除 API Key
-    window.deleteKey = async function(keyId) {
-      if (!confirm('确定要删除此 API Key 吗？此操作不可撤销。')) {
-        return;
-      }
-
-      const { error } = await supabase.functions.invoke(`api-keys/${keyId}`, {
-        method: 'DELETE'
-      });
-
-      if (error) {
-        alert(`删除失败: ${error.message}`);
-        return;
-      }
-
-      // 重新加载列表
-      loadApiKeys();
-      loadUserStats();
-    };
-
-    // 格式化数字
-    function formatNumber(num) {
-      if (num >= 1000000) {
-        return (num / 1000000).toFixed(1) + 'M';
-      }
-      if (num >= 1000) {
-        return (num / 1000).toFixed(1) + 'K';
-      }
-      return num.toString();
-    }
-
-    // 事件监听
-    btnLogout.addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      window.location.href = '/';
-    });
-
-    btnCreateKey.addEventListener('click', () => {
-      modalCreateKey.classList.add('active');
-    });
-
-    btnCancelCreate.addEventListener('click', () => {
-      modalCreateKey.classList.remove('active');
-    });
-
-    formCreateKey.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = document.getElementById('key-name').value;
-
-      const newKey = await createKey(name);
-      if (!newKey) return;
-
-      // 显示新 Key
-      newApiKeyEl.textContent = newKey.full_key;
-      modalCreateKey.classList.remove('active');
-      modalShowKey.classList.add('active');
-
-      // 重新加载列表
-      loadApiKeys();
-      loadUserStats();
-    });
-
-    btnCopyKey.addEventListener('click', () => {
-      const key = newApiKeyEl.textContent;
-      navigator.clipboard.writeText(key).then(() => {
-        alert('已复制到剪贴板！');
-      });
-    });
-
-    btnCloseShowKey.addEventListener('click', () => {
-      modalShowKey.classList.remove('active');
-    });
-
-    // 页面加载时初始化
-    (async () => {
-      const user = await checkAuth();
-      if (!user) return;
-
-      await loadUserStats();
-      await loadApiKeys();
-    })();
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+        // 启动
+        init();
+    </script>
 </body>
 </html>
