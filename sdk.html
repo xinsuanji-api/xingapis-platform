@@ -1,218 +1,345 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SDK 下载 - 星算纪 API 平台</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: linear-gradient(135deg, #0a1628 0%, #0d2137 100%); color: #e2e8f0; line-height: 1.6; min-height: 100vh; }
-    .header { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0, 229, 255, 0.2); padding: 1.5rem 3rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-    .logo { font-size: 1.8rem; font-weight: 700; background: linear-gradient(135deg, #00e5ff, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .nav-links { display: flex; gap: 2rem; }
-    .nav-link { color: #94a3b8; text-decoration: none; transition: all 0.3s; font-size: 0.95rem; }
-    .nav-link:hover { color: #00e5ff; }
-    .container { max-width: 1400px; margin: 0 auto; padding: 3rem 2rem; }
-    .page-title { font-size: 2.5rem; color: #00e5ff; margin-bottom: 0.5rem; text-shadow: 0 0 20px rgba(0, 229, 255, 0.5); }
-    .page-subtitle { color: #94a3b8; font-size: 1.1rem; margin-bottom: 3rem; }
-    .sdk-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; margin-bottom: 4rem; }
-    .sdk-card { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 16px; padding: 2.5rem; transition: all 0.3s; }
-    .sdk-card:hover { border-color: #00e5ff; box-shadow: 0 0 30px rgba(0, 229, 255, 0.3); transform: translateY(-5px); }
-    .sdk-icon { font-size: 3rem; margin-bottom: 1.5rem; }
-    .sdk-name { font-size: 1.5rem; color: #00e5ff; margin-bottom: 0.8rem; }
-    .sdk-version { color: #7c3aed; font-size: 0.9rem; margin-bottom: 1rem; }
-    .sdk-desc { color: #94a3b8; font-size: 0.95rem; line-height: 1.8; margin-bottom: 1.5rem; }
-    .sdk-meta { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-    .meta-tag { background: rgba(0, 229, 255, 0.1); color: #00e5ff; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; }
-    .btn-download { display: inline-block; padding: 0.8rem 2rem; background: linear-gradient(135deg, #00e5ff, #7c3aed); color: white; text-decoration: none; border-radius: 25px; font-weight: 600; transition: all 0.3s; border: none; cursor: pointer; font-size: 0.95rem; }
-    .btn-download:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0, 229, 255, 0.4); }
-    .btn-docs { display: inline-block; padding: 0.8rem 2rem; background: rgba(0, 229, 255, 0.1); color: #00e5ff; text-decoration: none; border-radius: 25px; font-weight: 600; transition: all 0.3s; border: 1px solid rgba(0, 229, 255, 0.3); cursor: pointer; font-size: 0.95rem; margin-left: 1rem; }
-    .btn-docs:hover { background: rgba(0, 229, 255, 0.2); transform: translateY(-2px); }
-    .section-title { font-size: 2rem; color: #7c3aed; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid rgba(124, 58, 237, 0.3); }
-    .installation-example { background: #0f172a; border-radius: 8px; padding: 2rem; margin-top: 2rem; }
-    .installation-example h4 { color: #00e5ff; margin-bottom: 1rem; }
-    pre { background: #000; color: #00ff00; padding: 1.5rem; border-radius: 8px; overflow-x: auto; font-size: 0.9rem; line-height: 1.5; }
-    @media (max-width: 768px) { .header { padding: 1rem; } .container { padding: 2rem 1rem; } .sdk-grid { grid-template-columns: 1fr; } }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDK 下载 - 星算纪</title>
+    <style>
+        :root { --cyan: #00e5ff; --purple: #7c3aed; --bg: #060d1a; --card: rgba(13,27,51,0.85); }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'SF Pro Display',-apple-system,sans-serif; background:var(--bg); color:#e2e8f0; min-height:100vh; line-height:1.7; }
+
+        .stars { position:fixed; inset:0; z-index:0; background: radial-gradient(1.5px 1.5px at 20% 30%, rgba(0,229,255,0.6), transparent), radial-gradient(1px 1px at 80% 70%, rgba(124,58,237,0.5), transparent); background-size:250px 250px; animation:drift 120s linear infinite; }
+        @keyframes drift { to { background-position:250px 250px; } }
+
+        nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; justify-content:space-between; align-items:center; padding:0.9rem 3rem; background:rgba(6,13,26,0.95); backdrop-filter:blur(20px); border-bottom:1px solid rgba(0,229,255,0.12); }
+        .logo { font-size:1.5rem; font-weight:800; }
+        .logo span { background:linear-gradient(135deg,var(--cyan),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .nav-links { display:flex; gap:2rem; list-style:none; }
+        .nav-links a { color:rgba(255,255,255,0.65); text-decoration:none; font-size:0.9rem; transition:color 0.3s; }
+        .nav-links a:hover { color:var(--cyan); }
+        .nav-right { display:flex; gap:0.8rem; }
+        .btn { padding:0.55rem 1.4rem; border-radius:8px; font-size:0.88rem; font-weight:600; text-decoration:none; transition:all 0.3s; cursor:pointer; border:none; }
+        .btn-ghost { background:transparent; border:1px solid rgba(0,229,255,0.3); color:var(--cyan); }
+        .btn-primary { background:linear-gradient(135deg,var(--cyan),var(--purple)); color:#000; }
+
+        .main { position:relative; z-index:10; max-width:1100px; margin:0 auto; padding:7rem 2rem 5rem; }
+
+        h1 { font-size:2.4rem; font-weight:800; color:#fff; margin-bottom:0.6rem; }
+        .subtitle { color:rgba(255,255,255,0.4); font-size:1.05rem; margin-bottom:3rem; }
+
+        /* SDK 卡片 */
+        .sdk-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:1.5rem; margin-bottom:4rem; }
+        .sdk-card {
+            background:var(--card); border:1px solid rgba(0,229,255,0.1);
+            border-radius:18px; padding:2.2rem 2rem; transition:all 0.35s;
+        }
+        .sdk-card:hover { border-color:rgba(0,229,255,0.35); transform:translateY(-4px); box-shadow:0 12px 40px rgba(0,229,255,0.1); }
+        .sdk-icon { font-size:2.2rem; margin-bottom:1rem; }
+        .sdk-name { font-size:1.2rem; font-weight:700; color:#fff; margin-bottom:0.3rem; }
+        .sdk-version { font-size:0.82rem; color:var(--purple); margin-bottom:0.8rem; }
+        .sdk-desc { font-size:0.9rem; color:rgba(255,255,255,0.55); line-height:1.7; margin-bottom:1.2rem; }
+        .sdk-tags { display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+        .tag { padding:0.2rem 0.6rem; border-radius:99px; font-size:0.75rem; background:rgba(0,229,255,0.08); color:var(--cyan); }
+        .sdk-actions { display:flex; gap:0.6rem; }
+        .sdk-actions .btn { font-size:0.82rem; padding:0.5rem 1.2rem; }
+
+        /* 安装 + 示例 */
+        .section-title { font-size:1.6rem; font-weight:700; color:#fff; margin-bottom:0.5rem; }
+        .section-desc { color:rgba(255,255,255,0.4); font-size:0.9rem; margin-bottom:2rem; }
+
+        .code-block {
+            background:#000; border:1px solid rgba(0,229,255,0.12);
+            border-radius:12px; margin-bottom:1.5rem; overflow:hidden;
+        }
+        .code-header {
+            display:flex; justify-content:space-between; align-items:center;
+            padding:0.6rem 1.2rem; background:rgba(0,229,255,0.04);
+            border-bottom:1px solid rgba(0,229,255,0.08); font-size:0.82rem;
+        }
+        .code-lang { color:var(--cyan); font-weight:600; }
+        .copy-btn { background:none; border:none; color:rgba(255,255,255,0.4); cursor:pointer; font-size:0.8rem; transition:color 0.2s; }
+        .copy-btn:hover { color:var(--cyan); }
+        .code-block pre { padding:1.2rem 1.5rem; margin:0; overflow-x:auto; }
+        .code-block pre code { color:#00ff00; font-size:0.88rem; line-height:1.7; font-family:'Courier New',monospace; }
+
+        /* 功能列表 */
+        .feature-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.2rem; margin-bottom:4rem; }
+        .feature-item {
+            background:var(--card); border:1px solid rgba(0,229,255,0.08);
+            border-radius:14px; padding:1.5rem; transition:border-color 0.3s;
+        }
+        .feature-item:hover { border-color:rgba(0,229,255,0.25); }
+        .feature-icon { font-size:1.5rem; margin-bottom:0.6rem; }
+        .feature-name { font-size:1rem; font-weight:600; color:#fff; margin-bottom:0.3rem; }
+        .feature-desc { font-size:0.85rem; color:rgba(255,255,255,0.45); line-height:1.6; }
+
+        /* 快速链接 */
+        .quick-links { display:flex; gap:1rem; flex-wrap:wrap; margin-top:3rem; }
+        .quick-links .btn { padding:0.6rem 1.5rem; }
+
+        footer { position:relative; z-index:10; text-align:center; padding:2.5rem 2rem; border-top:1px solid rgba(0,229,255,0.08); color:rgba(255,255,255,0.3); font-size:0.85rem; }
+
+        @media(max-width:768px) {
+            nav { padding:0.8rem 1.2rem; }
+            .nav-links { display:none; }
+            .main { padding:6rem 1.2rem 3rem; }
+            h1 { font-size:1.8rem; }
+        }
+    </style>
 </head>
 <body>
-  <header class="header">
-    <div class="logo">🚀 星算纪 API 平台</div>
-    <nav class="nav-links">
-      <a href="/" class="nav-link">首页</a>
-      <a href="/docs" class="nav-link">API 文档</a>
-      <a href="/pricing" class="nav-link">价格</a>
-      <a href="/sandbox.html" class="nav-link">测试沙箱</a>
-      <a href="/console.html" class="nav-link">控制台</a>
-    </nav>
-  </header>
+<div class="stars"></div>
 
-  <div class="container">
-    <h1 class="page-title">SDK 下载</h1>
-    <p class="page-subtitle">官方 SDK，快速集成星算纪 API 平台</p>
+<nav>
+    <div class="logo">星算<span>纪</span></div>
+    <ul class="nav-links">
+        <li><a href="index.html">首页</a></li>
+        <li><a href="models.html">模型</a></li>
+        <li><a href="pricing.html">价格</a></li>
+        <li><a href="docs.html">文档</a></li>
+        <li><a href="tutorial.html">教学</a></li>
+        <li><a href="sdk.html" style="color:var(--cyan);">SDK</a></li>
+        <li><a href="console.html">控制台</a></li>
+    </ul>
+    <div class="nav-right">
+        <a href="login.html" class="btn btn-ghost">登录</a>
+        <a href="register.html" class="btn btn-primary">免费注册</a>
+    </div>
+</nav>
 
+<div class="main">
+    <h1>📦 SDK 下载与文档</h1>
+    <p class="subtitle">官方多语言 SDK，3 行代码接入星算纪 API 平台</p>
+
+    <!-- SDK 卡片 -->
     <div class="sdk-grid">
-      <!-- Python SDK -->
-      <div class="sdk-card">
-        <div class="sdk-icon">🐍</div>
-        <div class="sdk-name">Python SDK</div>
-        <div class="sdk-version">最新版本：v1.2.3</div>
-        <div class="sdk-desc">适用于 Python 3.8+，支持所有星算纪 API 产品。包含完整类型提示和异步支持。</div>
-        <div class="sdk-meta">
-          <span class="meta-tag">Python 3.8+</span>
-          <span class="meta-tag">类型提示</span>
-          <span class="meta-tag">异步支持</span>
+        <!-- Python -->
+        <div class="sdk-card">
+            <div class="sdk-icon">🐍</div>
+            <div class="sdk-name">Python SDK</div>
+            <div class="sdk-version">v1.2.3 · Python 3.8+</div>
+            <div class="sdk-desc">最完整的 SDK，支持同步/异步调用、流式输出、自动重试。适用于后端服务、数据分析、AI Agent 开发。</div>
+            <div class="sdk-tags">
+                <span class="tag">类型提示</span>
+                <span class="tag">异步支持</span>
+                <span class="tag">自动重试</span>
+            </div>
+            <div class="sdk-actions">
+                <a href="https://pypi.org/project/xingapis-sdk/" target="_blank" class="btn btn-primary">PyPI 安装</a>
+                <a href="docs.html" class="btn btn-ghost">文档</a>
+            </div>
         </div>
-        <a href="https://pypi.org/project/xingapis-sdk/" class="btn-download" target="_blank">下载 SDK</a>
-        <a href="/docs" class="btn-docs">查看文档</a>
 
-        <div class="installation-example">
-          <h4>📦 安装</h4>
-          <pre>pip install xingapis-sdk</pre>
+        <!-- Node.js -->
+        <div class="sdk-card">
+            <div class="sdk-icon">🟢</div>
+            <div class="sdk-name">Node.js SDK</div>
+            <div class="sdk-version">v1.1.0 · Node 14+ / Deno</div>
+            <div class="sdk-desc">支持 ESM 和 CommonJS 双格式，完整 TypeScript 类型定义，前端/后端通用。</div>
+            <div class="sdk-tags">
+                <span class="tag">TypeScript</span>
+                <span class="tag">ESM/CJS</span>
+                <span class="tag">Deno 兼容</span>
+            </div>
+            <div class="sdk-actions">
+                <a href="https://www.npmjs.com/package/@xingapis/sdk" target="_blank" class="btn btn-primary">npm 安装</a>
+                <a href="docs.html" class="btn btn-ghost">文档</a>
+            </div>
         </div>
-      </div>
 
-      <!-- Node.js SDK -->
-      <div class="sdk-card">
-        <div class="sdk-icon">🟢</div>
-        <div class="sdk-name">Node.js SDK</div>
-        <div class="sdk-version">最新版本：v1.1.0</div>
-        <div class="sdk-desc">适用于 Node.js 14+，支持 TypeScript 类型定义。兼容 ES Modules 和 CommonJS。</div>
-        <div class="sdk-meta">
-          <span class="meta-tag">Node.js 14+</span>
-          <span class="meta-tag">TypeScript</span>
-          <span class="meta-tag">ESM/CJS</span>
+        <!-- Go -->
+        <div class="sdk-card">
+            <div class="sdk-icon">🐹</div>
+            <div class="sdk-name">Go SDK</div>
+            <div class="sdk-version">v0.9.0 · Go 1.19+</div>
+            <div class="sdk-desc">高性能 Go SDK，支持 context 传递、自动重试、连接池复用。适用于高并发微服务。</div>
+            <div class="sdk-tags">
+                <span class="tag">高性能</span>
+                <span class="tag">连接池</span>
+                <span class="tag">Context 支持</span>
+            </div>
+            <div class="sdk-actions">
+                <a href="https://github.com/xingapis/go-sdk" target="_blank" class="btn btn-primary">GitHub</a>
+                <a href="docs.html" class="btn btn-ghost">文档</a>
+            </div>
         </div>
-        <a href="https://www.npmjs.com/package/@xingapis/sdk" class="btn-download" target="_blank">下载 SDK</a>
-        <a href="/docs" class="btn-docs">查看文档</a>
-
-        <div class="installation-example">
-          <h4>📦 安装</h4>
-          <pre>npm install @xingapis/sdk</pre>
-        </div>
-      </div>
-
-      <!-- Go SDK -->
-      <div class="sdk-card">
-        <div class="sdk-icon">🐹</div>
-        <div class="sdk-name">Go SDK</div>
-        <div class="sdk-version">最新版本：v0.9.0 (Beta)</div>
-        <div class="sdk-desc">适用于 Go 1.18+，提供完整的 API 覆盖。支持 Context 超时控制。</div>
-        <div class="sdk-meta">
-          <span class="meta-tag">Go 1.18+</span>
-          <span class="meta-tag">Beta</span>
-          <span class="meta-tag">Context 支持</span>
-        </div>
-        <a href="https://github.com/xingapis/go-sdk" class="btn-download" target="_blank">下载 SDK</a>
-        <a href="/docs" class="btn-docs">查看文档</a>
-
-        <div class="installation-example">
-          <h4>📦 安装</h4>
-          <pre>go get github.com/xingapis/go-sdk</pre>
-        </div>
-      </div>
-
-      <!-- Java SDK -->
-      <div class="sdk-card">
-        <div class="sdk-icon">☕</div>
-        <div class="sdk-name">Java SDK</div>
-        <div class="sdk-version">最新版本：v0.8.0 (Beta)</div>
-        <div class="sdk-desc">适用于 Java 8+，支持 Android。使用 OkHttp 作为 HTTP 客户端。</div>
-        <div class="sdk-meta">
-          <span class="meta-tag">Java 8+</span>
-          <span class="meta-tag">Android</span>
-          <span class="meta-tag">OkHttp</span>
-        </div>
-        <a href="https://mvnrepository.com/artifact/com.xingapis/xingapis-java-sdk" class="btn-download" target="_blank">下载 SDK</a>
-        <a href="/docs" class="btn-docs">查看文档</a>
-
-        <div class="installation-example">
-          <h4>📦 Maven 依赖</h4>
-          <pre>&lt;dependency&gt;
-  &lt;groupId&gt;com.xingapis&lt;/groupId&gt;
-  &lt;artifactId&gt;xingapis-java-sdk&lt;/artifactId&gt;
-  &lt;version&gt;0.8.0&lt;/version&gt;
-&lt;/dependency&gt;</pre>
-        </div>
-      </div>
-
-      <!-- PHP SDK -->
-      <div class="sdk-card">
-        <div class="sdk-icon">🐘</div>
-        <div class="sdk-name">PHP SDK</div>
-        <div class="sdk-version">最新版本：v0.5.0 (Alpha)</div>
-        <div class="sdk-desc">适用于 PHP 7.4+，支持 Laravel 和 Symfony。遵循 PSR-4 自动加载标准。</div>
-        <div class="sdk-meta">
-          <span class="meta-tag">PHP 7.4+</span>
-          <span class="meta-tag">Alpha</span>
-          <span class="meta-tag">PSR-4</span>
-        </div>
-        <a href="https://packagist.org/packages/xingapis/php-sdk" class="btn-download" target="_blank">下载 SDK</a>
-        <a href="/docs" class="btn-docs">查看文档</a>
-
-        <div class="installation-example">
-          <h4>📦 安装</h4>
-          <pre>composer require xingapis/php-sdk</pre>
-        </div>
-      </div>
-
-      <!-- cURL (无 SDK) -->
-      <div class="sdk-card">
-        <div class="sdk-icon">🔗</div>
-        <div class="sdk-name">cURL (无 SDK)</div>
-        <div class="sdk-version">无需安装</div>
-        <div class="sdk-desc">无需安装任何 SDK，直接使用 cURL 发送 HTTP 请求。适合轻量级集成和调试。</div>
-        <div class="sdk-meta">
-          <span class="meta-tag">无依赖</span>
-          <span class="meta-tag">轻量级</span>
-          <span class="meta-tag">调试友好</span>
-        </div>
-        <a href="/docs" class="btn-download">查看示例</a>
-      </div>
     </div>
 
-    <div style="margin-top: 4rem;">
-      <h2 class="section-title">🚀 快速开始</h2>
-      <div style="background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 16px; padding: 2.5rem;">
-        <h3 style="color: #00e5ff; margin-bottom: 1.5rem;">1. 注册并获取 API Key</h3>
-        <p style="color: #94a3b8; line-height: 1.8; margin-bottom: 2rem;">
-          访问 <a href="/register" style="color: #00e5ff;">注册页面</a> 创建账户，然后在 <a href="/console.html" style="color: #00e5ff;">控制台</a> 创建 API Key。
-        </p>
+    <!-- Python 快速开始 -->
+    <div style="margin-bottom:4rem;">
+        <div class="section-title">🐍 Python 快速开始</div>
+        <p class="section-desc">3 行代码，完成第一次调用</p>
 
-        <h3 style="color: #00e5ff; margin-bottom: 1.5rem;">2. 安装 SDK</h3>
-        <p style="color: #94a3b8; line-height: 1.8; margin-bottom: 1rem;">选择您的编程语言，安装对应的 SDK：</p>
-        <pre># Python
-pip install xingapis-sdk
+        <div class="code-block">
+            <div class="code-header">
+                <span class="code-lang">bash</span>
+                <button class="copy-btn" onclick="copyCode(this)">复制</button>
+            </div>
+            <pre><code>pip install xingapis-sdk</code></pre>
+        </div>
 
-# Node.js
-npm install @xingapis/sdk
+        <div class="code-block">
+            <div class="code-header">
+                <span class="code-lang">python</span>
+                <button class="copy-btn" onclick="copyCode(this)">复制</button>
+            </div>
+            <pre><code>from xingapis import XingAPI
 
-# Go
-go get github.com/xingapis/go-sdk
+# 初始化（用您的 API Key）
+client = XingAPI(api_key="sk-xxxxxxxxxxxx")
 
-# Java (Maven)
-&lt;dependency&gt;
-  &lt;groupId&gt;com.xingapis&lt;/groupId&gt;
-  &lt;artifactId&gt;xingapis-java-sdk&lt;/artifactId&gt;
-  &lt;version&gt;0.8.0&lt;/version&gt;
-&lt;/dependency&gt;
-
-# PHP
-composer require xingapis/php-sdk</pre>
-
-        <h3 style="color: #00e5ff; margin-top: 2rem; margin-bottom: 1.5rem;">3. 发起第一个请求</h3>
-        <p style="color: #94a3b8; line-height: 1.8; margin-bottom: 1rem;">使用您喜欢的编程语言，发起第一个 API 请求：</p>
-        <pre>// Python 示例
-import xingapis
-
-client = xingapis.Client(api_key="YOUR_API_KEY")
+# 发起对话
 response = client.chat.create(
-    model="qwen-plus",
-    messages=[{"role": "user", "content": "你好！"}]
+    model="deepseek-v3",
+    messages=[{"role": "user", "content": "解释量子计算"}]
 )
-print(response)</pre>
-      </div>
+
+print(response.choices[0].message.content)
+print(f"用量：{response.usage.total_tokens} tokens")
+print(f"费用：¥{response.cost:.6f}")</code></pre>
+        </div>
+
+        <div class="code-block">
+            <div class="code-header">
+                <span class="code-lang">python · 流式输出</span>
+                <button class="copy-btn" onclick="copyCode(this)">复制</button>
+            </div>
+            <pre><code>stream = client.chat.create(
+    model="deepseek-v3",
+    messages=[{"role": "user", "content": "写一首诗"}],
+    stream=True
+)
+
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="", flush=True)</code></pre>
+        </div>
     </div>
-  </div>
+
+    <!-- Node.js 快速开始 -->
+    <div style="margin-bottom:4rem;">
+        <div class="section-title">🟢 Node.js 快速开始</div>
+        <p class="section-desc">兼容 OpenAI SDK，改个 import 即可迁移</p>
+
+        <div class="code-block">
+            <div class="code-header">
+                <span class="code-lang">bash</span>
+                <button class="copy-btn" onclick="copyCode(this)">复制</button>
+            </div>
+            <pre><code>npm install @xingapis/sdk
+# 或
+yarn add @xingapis/sdk</code></pre>
+        </div>
+
+        <div class="code-block">
+            <div class="code-header">
+                <span class="code-lang">typescript</span>
+                <button class="copy-btn" onclick="copyCode(this)">复制</button>
+            </div>
+            <pre><code>import { XingAPI } from '@xingapis/sdk';
+
+const client = new XingAPI({
+  apiKey: process.env.XING_API_KEY,
+});
+
+const response = await client.chat.create({
+  model: 'deepseek-v3',
+  messages: [{ role: 'user', content: '你好！' }],
+});
+
+console.log(response.choices[0].message.content);</code></pre>
+        </div>
+    </div>
+
+    <!-- 核心功能 -->
+    <div style="margin-bottom:4rem;">
+        <div class="section-title">✨ SDK 核心功能</div>
+        <p class="section-desc">所有 SDK 均支持以下能力</p>
+
+        <div class="feature-list">
+            <div class="feature-item">
+                <div class="feature-icon">🔄</div>
+                <div class="feature-name">自动重试</div>
+                <div class="feature-desc">遇到 429/5xx 错误自动指数退避重试，默认最多 3 次，可配置。</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-name">流式输出</div>
+                <div class="feature-desc">原生支持 Server-Sent Events (SSE)，TypeScript/Python 均提供 async iterator 接口。</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">📊</div>
+                <div class="feature-name">用量统计</div>
+                <div class="feature-desc">每次响应自动返回 token 用量和费用估算，无需手动计算。</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🛡️</div>
+                <div class="feature-name">错误处理</div>
+                <div class="feature-desc">统一错误类 XingAPIError，区分认证错误、余额不足、限流等场景。</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🔌</div>
+                <div class="feature-name">中间件</div>
+                <div class="feature-desc">Python/Node 均支持中间件机制，可注入日志、监控、审计等逻辑。</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">📦</div>
+                <div class="feature-name">批处理</div>
+                <div class="feature-desc">支持批量 Embedding、批量对话请求，自动做并发控制，避免触发限流。</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 迁移指南 -->
+    <div style="background:var(--card); border:1px solid rgba(0,229,255,0.1); border-radius:18px; padding:2.5rem 2rem; margin-bottom:3rem;">
+        <div class="section-title">🔀 从 OpenAI SDK 迁移</div>
+        <p class="section-desc">只需改 2 行，其余代码 0 修改</p>
+
+        <div class="code-block">
+            <div class="code-header">
+                <span class="code-lang">python · 修改前（OpenAI 官方）</span>
+            </div>
+            <pre><code>from openai import OpenAI
+client = OpenAI(api_key="sk-xxxx")  # ← 改这里
+response = client.chat.completions.create(
+    model="gpt-4o",                  # ← 改这里
+    messages=[...]
+)</code></pre>
+        </div>
+
+        <div class="code-block">
+            <div class="code-header">
+                <span class="code-lang">python · 修改后（星算纪）</span>
+            </div>
+            <pre><code>from xingapis import XingAPI
+client = XingAPI(api_key="sk-xxxx")   # ← 改成星算纪 Key
+response = client.chat.create(
+    model="deepseek-v3",               # ← 改模型名
+    messages=[...]
+)</code></pre>
+        </div>
+    </div>
+
+    <div class="quick-links">
+        <a href="tutorial.html" class="btn btn-primary">查看新手教学 →</a>
+        <a href="docs.html" class="btn btn-ghost">完整 API 文档</a>
+        <a href="sandbox.html" class="btn btn-ghost">在线测试沙盒</a>
+    </div>
+</div>
+
+<footer>
+    <p>© 2024 星算纪 xinsuanji.cn · <a href="docs.html" style="color:var(--cyan);text-decoration:none;">API 文档</a> · <a href="mailto:support@xinsuanji.cn" style="color:var(--cyan);text-decoration:none;">联系支持</a></p>
+</footer>
+
+<script>
+    function copyCode(btn) {
+        const code = btn.closest('.code-block').querySelector('code').textContent;
+        navigator.clipboard.writeText(code).then(() => {
+            btn.textContent = '✅ 已复制';
+            setTimeout(() => btn.textContent = '复制', 2000);
+        });
+    }
+</script>
 </body>
 </html>
