@@ -1,5 +1,5 @@
 // Supabase 配置 - 星算纪 API 平台
-const SUPABASE_URL = 'https://fllwyvcmkpgxzjlflcfe.supabase.co';
+const SUPABASE_URL = 'https://fllwyvcmkpgxzjlffcfe.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_uUwAZ4UtEYIuipSGsU-kBw_01dUJmBv';
 
 // 初始化 Supabase 客户端
