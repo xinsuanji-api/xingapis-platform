@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模型列表 - 星算纪</title>
+    <style>
+        :root { --ocean-deep: #0a1628; --ocean-mid: #0d2137; --cyan-glow: #00e5ff; --purple-dream: #7c3aed; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'SF Pro Display', -apple-system, sans-serif; background: var(--ocean-deep); color: #ffffff; line-height: 1.6; }
+        nav { position: fixed; top: 0; left: 0; right: 0; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; z-index: 100; background: rgba(10, 22, 40, 0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0, 229, 255, 0.2); }
+        .logo { font-size: 1.6rem; font-weight: 800; }
+        .logo span { background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; }
+        .nav-links a { color: rgba(255, 255, 255, 0.6); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--cyan-glow); }
+        .btn { padding: 0.6rem 1.5rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; text-decoration: none; transition: all 0.3s; cursor: pointer; border: none; }
+        .btn-ghost { background: transparent; color: rgba(255, 255, 255, 0.6); }
+        .btn-primary { background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream)); color: #000; }
+        .hero { padding: 10rem 5% 5rem; text-align: center; }
+        .hero h1 { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 800; margin-bottom: 1rem; }
+        .hero h1 .gradient-text { background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { font-size: 1.2rem; color: rgba(255, 255, 255, 0.5); max-width: 600px; margin: 0 auto; }
+        .content { padding: 5rem 5%; max-width: 1200px; margin: 0 auto; }
+        .model-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .model-card { background: rgba(13, 33, 55, 0.8); border: 1px solid rgba(0, 229, 255, 0.15); border-radius: 16px; padding: 2rem; transition: all 0.3s; }
+        .model-card:hover { border-color: rgba(0, 229, 255, 0.4); transform: translateY(-5px); }
+        .model-card h3 { color: var(--cyan-glow); font-size: 1.2rem; margin-bottom: 0.5rem; }
+        .model-card .provider { color: var(--purple-dream); font-size: 0.9rem; margin-bottom: 1rem; }
+        .model-card p { color: rgba(255, 255, 255, 0.6); font-size: 0.95rem; }
+        .model-card .price { color: #fbbf24; font-size: 0.9rem; margin-top: 1rem; }
+        footer { padding: 3rem 5%; text-align: center; color: rgba(255, 255, 255, 0.4); font-size: 0.9rem; border-top: 1px solid rgba(0, 229, 255, 0.1); }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">星算<span>纪</span></div>
+        <ul class="nav-links">
+            <li><a href="index.html">首页</a></li>
+            <li><a href="apis.html">API</a></li>
+            <li><a href="models.html">模型</a></li>
+            <li><a href="pricing.html">价格</a></li>
+            <li><a href="docs.html">文档</a></li>
+        </ul>
+        <div>
+            <a href="login.html" class="btn btn-ghost">登录</a>
+            <a href="register.html" class="btn btn-primary">免费注册</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>200+ <span class="gradient-text">模型</span></h1>
+        <p>汇聚全球顶尖 AI 大模型，一个 API Key 全部调用</p>
+    </section>
+
+    <section class="content">
+        <div class="model-grid">
+            <div class="model-card">
+                <h3>DeepSeek-R1</h3>
+                <div class="provider">DeepSeek · 推理模型</div>
+                <p>最强开源推理模型，性能媲美 o1，支持长链推理和数学计算。</p>
+                <div class="price">¥0.14 / 1M tokens</div>
+            </div>
+            <div class="model-card">
+                <h3>DeepSeek-V3</h3>
+                <div class="provider">DeepSeek · 对话模型</div>
+                <p>性价比之王，性能接近 Claude 3.5 Sonnet，价格仅为其 1/10。</p>
+                <div class="price">¥0.27 / 1M tokens</div>
+            </div>
+            <div class="model-card">
+                <h3>GPT-4o</h3>
+                <div class="provider">OpenAI · 多模态</div>
+                <p>OpenAI 旗舰模型，支持文本、图像、语音多模态输入。</p>
+                <div class="price">¥17.15 / 1M tokens</div>
+            </div>
+            <div class="model-card">
+                <h3>Claude 3.5 Sonnet</h3>
+                <div class="provider">Anthropic · 对话模型</div>
+                <p>最强代码和推理能力，支持 200K 上下文。</p>
+                <div class="price">¥15.30 / 1M tokens</div>
+            </div>
+            <div class="model-card">
+                <h3>Qwen3-235B</h3>
+                <div class="provider">阿里云 · 推理模型</div>
+                <p>开源 MoE 模型，235B 总参数，激活仅 22B，性能顶尖。</p>
+                <div class="price">¥0.50 / 1M tokens</div>
+            </div>
+            <div class="model-card">
+                <h3>Gemini 2.0 Flash</h3>
+                <div class="provider">Google · 多模态</div>
+                <p>Google 最新模型，极速响应，支持多模态输入。</p>
+                <div class="price">¥1.20 / 1M tokens</div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2024 星算纪 · 一站式 AI API 聚合平台</p>
+    </footer>
+</body>
+</html>

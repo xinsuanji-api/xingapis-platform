@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>联系我们 - 星算纪</title>
+    <style>
+        :root { --ocean-deep: #0a1628; --ocean-mid: #0d2137; --cyan-glow: #00e5ff; --purple-dream: #7c3aed; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'SF Pro Display', -apple-system, sans-serif; background: var(--ocean-deep); color: #ffffff; line-height: 1.6; }
+        nav { position: fixed; top: 0; left: 0; right: 0; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; z-index: 100; background: rgba(10, 22, 40, 0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0, 229, 255, 0.2); }
+        .logo { font-size: 1.6rem; font-weight: 800; }
+        .logo span { background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; }
+        .nav-links a { color: rgba(255, 255, 255, 0.6); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--cyan-glow); }
+        .btn { padding: 0.6rem 1.5rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; text-decoration: none; transition: all 0.3s; cursor: pointer; border: none; }
+        .btn-ghost { background: transparent; color: rgba(255, 255, 255, 0.6); }
+        .btn-primary { background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream)); color: #000; }
+        .hero { padding: 10rem 5% 5rem; text-align: center; }
+        .hero h1 { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 800; margin-bottom: 1rem; }
+        .hero h1 .gradient-text { background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { font-size: 1.2rem; color: rgba(255, 255, 255, 0.5); max-width: 600px; margin: 0 auto; }
+        .content { padding: 5rem 5%; max-width: 800px; margin: 0 auto; }
+        .contact-card { background: rgba(13, 33, 55, 0.8); border: 1px solid rgba(0, 229, 255, 0.15); border-radius: 16px; padding: 2.5rem; margin-bottom: 2rem; }
+        .contact-card h3 { color: var(--cyan-glow); font-size: 1.3rem; margin-bottom: 1.5rem; }
+        .contact-item { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; color: rgba(255, 255, 255, 0.7); }
+        .contact-item .icon { font-size: 1.5rem; }
+        .contact-form { display: flex; flex-direction: column; gap: 1.5rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .form-group label { color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; }
+        .form-group input, .form-group textarea { padding: 0.8rem 1rem; background: rgba(0, 229, 255, 0.05); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 8px; color: #ffffff; font-size: 1rem; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--cyan-glow); }
+        .form-group textarea { min-height: 150px; resize: vertical; }
+        .submit-btn { padding: 1rem 2rem; background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream)); color: #000; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0, 229, 255, 0.3); }
+        footer { padding: 3rem 5%; text-align: center; color: rgba(255, 255, 255, 0.4); font-size: 0.9rem; border-top: 1px solid rgba(0, 229, 255, 0.1); }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">星算<span>纪</span></div>
+        <ul class="nav-links">
+            <li><a href="index.html">首页</a></li>
+            <li><a href="apis.html">API</a></li>
+            <li><a href="models.html">模型</a></li>
+            <li><a href="pricing.html">价格</a></li>
+            <li><a href="docs.html">文档</a></li>
+        </ul>
+        <div>
+            <a href="login.html" class="btn btn-ghost">登录</a>
+            <a href="register.html" class="btn btn-primary">免费注册</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>联系<span class="gradient-text">我们</span></h1>
+        <p>有任何问题？我们随时为您服务</p>
+    </section>
+
+    <section class="content">
+        <div class="contact-card">
+            <h3>联系方式</h3>
+            <div class="contact-item">
+                <span class="icon">📧</span>
+                <span>support@xinsuanji.cn</span>
+            </div>
+            <div class="contact-item">
+                <span class="icon">💬</span>
+                <span>企业微信：搜索"星算纪"</span>
+            </div>
+            <div class="contact-item">
+                <span class="icon">🕐</span>
+                <span>7×24 技术支持</span>
+            </div>
+        </div>
+
+        <div class="contact-card">
+            <h3>发送消息</h3>
+            <form class="contact-form" onsubmit="alert('消息已发送！我们会尽快回复。'); return false;">
+                <div class="form-group">
+                    <label>姓名</label>
+                    <input type="text" placeholder="您的姓名" required>
+                </div>
+                <div class="form-group">
+                    <label>邮箱</label>
+                    <input type="email" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label>消息</label>
+                    <textarea placeholder="请描述您的需求..." required></textarea>
+                </div>
+                <button type="submit" class="submit-btn">发送消息</button>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2024 星算纪 · 一站式 AI API 聚合平台</p>
+    </footer>
+</body>
+</html>
