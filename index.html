@@ -3,867 +3,483 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>星算纪 | AI 大模型聚合平台</title>
-    <!-- Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
+    <title>星算纪 — 一站式 AI 大模型 API 中转站</title>
     <style>
         :root {
-            --ocean-deep: #0a1628;
-            --ocean-mid: #0d2137;
-            --cyan-glow: #00e5ff;
-            --purple-dream: #7c3aed;
-            --star-yellow: #fbbf24;
+            --cyan: #00e5ff;
+            --purple: #7c3aed;
+            --bg: #060d1a;
+            --card: rgba(13,27,51,0.85);
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: 'SF Pro Display', -apple-system, sans-serif;
-            background: var(--ocean-deep);
-            color: #ffffff;
-            line-height: 1.6;
+            background: var(--bg);
+            color: #e2e8f0;
             overflow-x: hidden;
+            line-height: 1.6;
         }
 
-        /* 星空海洋画布 */
-        #starry-ocean {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
+        /* ===== 星空背景 ===== */
+        .stars {
+            position: fixed; inset:0; z-index:0;
+            background:
+                radial-gradient(1.5px 1.5px at 20% 30%, rgba(0,229,255,0.7), transparent),
+                radial-gradient(1.2px 1.2px at 80% 70%, rgba(124,58,237,0.6), transparent),
+                radial-gradient(1px 1px at 50% 50%, rgba(255,255,255,0.3), transparent);
+            background-size: 200px 200px;
+            animation: drift 120s linear infinite;
         }
+        @keyframes drift { to { background-position: 200px 200px; } }
 
-        /* 星光层 */
-        .stars-layer {
-            position: fixed;
-            inset: 0;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        .star {
-            position: absolute;
-            background: #ffffff;
-            border-radius: 50%;
-            animation: twinkle var(--duration) ease-in-out infinite;
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: var(--opacity-min); transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.5); }
-        }
-
-        /* 游动的鱼 */
-        .fish-container {
-            position: fixed;
-            inset: 0;
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        .fish {
-            position: absolute;
-            animation: swim var(--swim-duration) linear infinite;
-            opacity: 0.6;
-        }
-
-        .fish-body {
-            width: var(--fish-size);
-            height: calc(var(--fish-size) * 0.5);
-            background: linear-gradient(135deg, var(--fish-color-1), var(--fish-color-2));
-            border-radius: 50% 50% 50% 0;
-            position: relative;
-            filter: drop-shadow(0 0 10px var(--fish-glow));
-        }
-
-        .fish-tail {
-            position: absolute;
-            right: -10px;
-            top: 20%;
-            width: 0;
-            height: 0;
-            border-left: 15px solid var(--fish-color-2);
-            border-top: 8px solid transparent;
-            border-bottom: 8px solid transparent;
-            animation: tailWag 0.8s ease-in-out infinite;
-        }
-
-        @keyframes tailWag {
-            0%, 100% { transform: rotate(0deg); }
-            50% { transform: rotate(20deg); }
-        }
-
-        .fish-eye {
-            position: absolute;
-            left: 8px;
-            top: 30%;
-            width: 6px;
-            height: 6px;
-            background: #ffffff;
-            border-radius: 50%;
-            box-shadow: 0 0 5px #fff;
-        }
-
-        @keyframes swim {
-            0% {
-                transform: translate(0, 0) rotateY(0deg);
-            }
-            25% {
-                transform: translate(200px, -50px) rotateY(0deg);
-            }
-            50% {
-                transform: translate(400px, 30px) rotateY(0deg);
-            }
-            75% {
-                transform: translate(600px, -40px) rotateY(0deg);
-            }
-            100% {
-                transform: translate(1000px, 0) rotateY(0deg);
-            }
-        }
-
-        /* 气泡 */
-        .bubble {
-            position: fixed;
-            bottom: -50px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, rgba(0, 229, 255, 0.3), rgba(0, 229, 255, 0.05));
-            border: 1px solid rgba(0, 229, 255, 0.3);
-            animation: bubbleRise var(--rise-duration) ease-in infinite;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        @keyframes bubbleRise {
-            0% {
-                transform: translateX(0) translateY(0) scale(1);
-                opacity: 0.8;
-            }
-            100% {
-                transform: translateX(var(--drift)) translateY(-110vh) scale(0.3);
-                opacity: 0;
-            }
-        }
-
-        /* 导航 */
+        /* ===== 导航 ===== */
         nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            padding: 1rem 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 100;
-            background: rgba(10, 22, 40, 0.85);
+            position: fixed; top:0; left:0; right:0; z-index:100;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 3rem;
+            background: rgba(6,13,26,0.92);
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+            border-bottom: 1px solid rgba(0,229,255,0.12);
         }
-
-        .logo {
-            font-size: 1.6rem;
-            font-weight: 800;
-            letter-spacing: -1px;
-        }
-
+        .logo { font-size: 1.5rem; font-weight: 800; }
         .logo span {
-            background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: glowPulse 3s ease-in-out infinite;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-
-        @keyframes glowPulse {
-            0%, 100% { filter: drop-shadow(0 0 5px var(--cyan-glow)); }
-            50% { filter: drop-shadow(0 0 25px var(--cyan-glow)); }
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
-        }
-
+        .nav-links { display:flex; gap:2rem; list-style:none; }
         .nav-links a {
-            color: rgba(255, 255, 255, 0.6);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.3s;
-            position: relative;
+            color: rgba(255,255,255,0.65); text-decoration: none;
+            font-size: 0.9rem; transition: color 0.3s;
         }
-
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--cyan-glow);
-            transition: width 0.3s;
-        }
-
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-
-        .nav-links a:hover {
-            color: var(--cyan-glow);
-        }
-
+        .nav-links a:hover { color: var(--cyan); }
+        .nav-btns { display:flex; gap:0.8rem; }
         .btn {
-            padding: 0.6rem 1.5rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s;
-            cursor: pointer;
-            border: none;
+            padding: 0.55rem 1.4rem; border-radius: 8px;
+            font-size: 0.88rem; font-weight: 600;
+            text-decoration: none; transition: all 0.3s; cursor: pointer; border: none;
         }
-
         .btn-ghost {
-            background: transparent;
-            color: rgba(255, 255, 255, 0.6);
+            background: transparent; border: 1px solid rgba(0,229,255,0.3);
+            color: var(--cyan);
         }
-
+        .btn-ghost:hover { background: rgba(0,229,255,0.08); }
         .btn-primary {
-            background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream));
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
             color: #000;
-            box-shadow: 0 0 30px rgba(0, 229, 255, 0.4);
-            position: relative;
-            overflow: hidden;
         }
+        .btn-primary:hover { box-shadow: 0 6px 24px rgba(0,229,255,0.3); transform: translateY(-1px); }
 
-        .btn-primary::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transform: rotate(45deg);
-            animation: shine 3s infinite;
-        }
-
-        @keyframes shine {
-            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-        }
-
-        /* Hero */
+        /* ===== Hero ===== */
         .hero {
-            position: relative;
-            z-index: 10;
+            position: relative; z-index:10;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
             text-align: center;
-            padding: 8rem 5% 5rem;
+            padding: 6rem 2rem 4rem;
         }
-
         .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.6rem 1.5rem;
-            background: rgba(0, 229, 255, 0.08);
-            border: 1px solid rgba(0, 229, 255, 0.25);
-            border-radius: 100px;
-            color: var(--cyan-glow);
-            font-size: 0.85rem;
-            font-weight: 500;
-            margin-bottom: 2.5rem;
-            animation: fadeInUp 1s ease;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: #00ff88;
-            border-radius: 50%;
-            animation: pulseDot 2s ease-in-out infinite;
-            box-shadow: 0 0 10px #00ff88;
-        }
-
-        @keyframes pulseDot {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.5); opacity: 0.7; }
-        }
-
-        .hero h1 {
-            font-size: clamp(3rem, 8vw, 6rem);
-            font-weight: 900;
-            line-height: 1.05;
-            letter-spacing: -3px;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.4rem 1.2rem; border-radius: 99px;
+            background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.2);
+            font-size: 0.82rem; color: var(--cyan);
             margin-bottom: 2rem;
-            animation: fadeInUp 1s ease 0.2s backwards;
         }
-
-        .hero h1 .gradient-text {
-            background: linear-gradient(135deg, var(--cyan-glow) 0%, var(--purple-dream) 50%, var(--star-yellow) 100%);
-            background-size: 200% 200%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: gradientFlow 5s ease infinite;
+        .hero h1 {
+            font-size: clamp(2.4rem, 6vw, 4.2rem);
+            font-weight: 900; line-height: 1.15;
+            margin-bottom: 1.2rem;
         }
-
-        @keyframes gradientFlow {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
+        .hero h1 .gradient {
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-
-        .hero p {
-            font-size: 1.3rem;
-            color: rgba(255, 255, 255, 0.6);
-            max-width: 650px;
-            margin-bottom: 3rem;
-            animation: fadeInUp 1s ease 0.4s backwards;
+        .hero-sub {
+            font-size: 1.15rem; color: rgba(255,255,255,0.5);
+            max-width: 560px; margin: 0 auto 2.5rem;
         }
+        .hero-actions { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; }
+        .hero-actions .btn { padding: 0.8rem 2rem; font-size: 1rem; border-radius: 10px; }
 
-        .hero-buttons {
-            display: flex;
-            gap: 1.25rem;
-            animation: fadeInUp 1s ease 0.6s backwards;
+        /* ===== 数据统计条 ===== */
+        .stats-bar {
+            position: relative; z-index:10;
+            display: flex; justify-content: center; gap: 3rem;
+            padding: 2.5rem 2rem;
+            background: rgba(0,229,255,0.03);
+            border-top: 1px solid rgba(0,229,255,0.08);
+            border-bottom: 1px solid rgba(0,229,255,0.08);
+            flex-wrap: wrap;
         }
+        .stat-item { text-align:center; }
+        .stat-num { font-size: 2rem; font-weight: 800; color: var(--cyan); }
+        .stat-label { font-size: 0.85rem; color: rgba(255,255,255,0.4); margin-top: 0.2rem; }
 
-        .btn-lg {
-            padding: 1rem 2.5rem;
-            font-size: 1.05rem;
-            border-radius: 12px;
+        /* ===== 区块通用 ===== */
+        .section {
+            position: relative; z-index:10;
+            max-width: 1200px; margin: 0 auto;
+            padding: 5rem 2rem;
         }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* 统计数字 */
-        .stats {
-            display: flex;
-            gap: 4rem;
-            margin-top: 5rem;
-            animation: fadeInUp 1s ease 0.8s backwards;
-        }
-
-        .stat-item {
-            text-align: center;
-            position: relative;
-        }
-
-        .stat-item::after {
-            content: '';
-            position: absolute;
-            right: -2rem;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 1px;
-            height: 40px;
-            background: rgba(0, 229, 255, 0.2);
-        }
-
-        .stat-item:last-child::after { display: none; }
-
-        .stat-num {
-            font-size: 3rem;
-            font-weight: 800;
-            color: var(--cyan-glow);
-            font-variant-numeric: tabular-nums;
-            text-shadow: 0 0 30px rgba(0, 229, 255, 0.5);
-        }
-
-        .stat-label {
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.5);
-            margin-top: 0.5rem;
-        }
-
-        /* 特性区块 */
-        .features {
-            position: relative;
-            z-index: 10;
-            padding: 10rem 5%;
-        }
-
-        .section-header {
-            text-align: center;
-            margin-bottom: 5rem;
-        }
-
-        .section-header h2 {
-            font-size: clamp(2.5rem, 6vw, 4rem);
-            font-weight: 800;
+        .section-label {
+            display: inline-block; padding: 0.3rem 0.9rem;
+            background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.2);
+            border-radius: 6px; font-size: 0.8rem; color: var(--cyan);
             margin-bottom: 1rem;
         }
-
-        .section-header h2 .gradient-text {
-            background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .section-title {
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            font-weight: 800; color: #fff; margin-bottom: 1rem;
+        }
+        .section-desc {
+            font-size: 1.05rem; color: rgba(255,255,255,0.45);
+            max-width: 540px; margin-bottom: 3rem;
         }
 
-        .section-header p {
-            font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .features-grid {
+        /* ===== 模型卡片 ===== */
+        .model-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(260px,1fr));
+            gap: 1.2rem;
+        }
+        .model-card {
+            background: var(--card);
+            border: 1px solid rgba(0,229,255,0.1);
+            border-radius: 16px; padding: 1.8rem 1.5rem;
+            transition: all 0.35s;
+        }
+        .model-card:hover {
+            border-color: rgba(0,229,255,0.35);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,229,255,0.1);
+        }
+        .model-card .provider {
+            font-size: 0.75rem; font-weight: 600;
+            padding: 0.2rem 0.6rem; border-radius: 4px;
+            display: inline-block; margin-bottom: 0.8rem;
+        }
+        .p-deepseek { background: rgba(0,229,255,0.1); color: var(--cyan); }
+        .p-qwen     { background: rgba(255,68,68,0.1); color: #ef4444; }
+        .p-openai   { background: rgba(16,185,129,0.1); color: #10b981; }
+        .p-anthropic{ background: rgba(124,58,237,0.1); color: var(--purple); }
+        .p-google   { background: rgba(251,191,36,0.1); color: #fbbf24; }
+        .model-card h3 { font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; }
+        .model-card .price { font-size: 0.88rem; color: rgba(255,255,255,0.5); }
+        .model-card .price strong { color: var(--cyan); }
+
+        /* ===== 三步教学 ===== */
+        .steps {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr));
             gap: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
         }
-
-        .feature-card {
-            background: rgba(13, 33, 55, 0.8);
-            border: 1px solid rgba(0, 229, 255, 0.15);
-            border-radius: 20px;
-            padding: 2.5rem;
-            transition: all 0.4s;
+        .step {
+            background: var(--card); border: 1px solid rgba(0,229,255,0.1);
+            border-radius: 16px; padding: 2rem 1.8rem;
             position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
+        }
+        .step-num {
+            width: 40px; height: 40px; border-radius: 10px;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; color: #000; font-size: 1.1rem;
+            margin-bottom: 1.2rem;
+        }
+        .step h3 { font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; }
+        .step p { font-size: 0.9rem; color: rgba(255,255,255,0.5); line-height: 1.6; }
+        .step-code {
+            background: #000; border: 1px solid rgba(0,229,255,0.15);
+            border-radius: 8px; padding: 0.8rem 1rem;
+            font-family: 'Courier New', monospace; font-size: 0.82rem;
+            color: var(--cyan); margin-top: 1rem; overflow-x: auto;
         }
 
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--cyan-glow), var(--purple-dream));
-            transform: translateX(-100%);
-            transition: transform 0.4s;
+        /* ===== 特性列表 ===== */
+        .features {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr));
+            gap: 1.2rem;
         }
-
-        .feature-card:hover::before {
-            transform: translateX(0);
+        .feature {
+            background: var(--card); border: 1px solid rgba(0,229,255,0.08);
+            border-radius: 14px; padding: 1.5rem;
+            transition: border-color 0.3s;
         }
+        .feature:hover { border-color: rgba(0,229,255,0.25); }
+        .feature-icon { font-size: 1.8rem; margin-bottom: 0.8rem; }
+        .feature h3 { font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 0.4rem; }
+        .feature p { font-size: 0.85rem; color: rgba(255,255,255,0.45); line-height: 1.6; }
 
-        .feature-card:hover {
-            border-color: rgba(0, 229, 255, 0.4);
-            transform: translateY(-8px);
-            box-shadow: 0 20px 60px rgba(0, 229, 255, 0.15);
+        /* ===== 价格表 ===== */
+        .pricing-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr));
+            gap: 1.5rem;
         }
-
-        .feature-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, rgba(0, 229, 255, 0.15), rgba(124, 58, 237, 0.15));
-            border: 1px solid rgba(0, 229, 255, 0.2);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
-            animation: iconPulse 3s ease-in-out infinite;
+        .price-card {
+            background: var(--card); border: 1px solid rgba(0,229,255,0.1);
+            border-radius: 18px; padding: 2.2rem 1.8rem;
+            text-align: center; transition: all 0.35s; position: relative;
         }
-
-        @keyframes iconPulse {
-            0%, 100% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.2); }
-            50% { box-shadow: 0 0 40px rgba(0, 229, 255, 0.4); }
+        .price-card.recommended {
+            border-color: var(--cyan);
+            box-shadow: 0 0 30px rgba(0,229,255,0.12);
         }
-
-        .feature-card h3 {
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            color: #ffffff;
+        .price-card.recommended::after {
+            content: '推荐'; position: absolute; top: 1rem; right: 1rem;
+            background: var(--cyan); color: #000;
+            font-size: 0.7rem; font-weight: 700;
+            padding: 0.2rem 0.7rem; border-radius: 99px;
         }
-
-        .feature-card p {
-            color: rgba(255, 255, 255, 0.5);
-            line-height: 1.7;
+        .price-card h3 { font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 0.3rem; }
+        .price-card .desc { font-size: 0.82rem; color: rgba(255,255,255,0.4); margin-bottom: 1.5rem; }
+        .price-card .amount { font-size: 2.4rem; font-weight: 800; color: var(--cyan); }
+        .price-card .unit { font-size: 0.85rem; color: rgba(255,255,255,0.4); margin-bottom: 1.5rem; }
+        .price-card .features-list { list-style:none; text-align:left; margin-bottom:1.5rem; }
+        .price-card .features-list li {
+            padding: 0.4rem 0; font-size: 0.85rem; color: rgba(255,255,255,0.6);
         }
+        .price-card .features-list li::before { content:'✓ '; color: #00ff88; font-weight:700; }
 
-        /* CTA */
+        /* ===== CTA ===== */
         .cta {
-            position: relative;
-            z-index: 10;
-            padding: 10rem 5%;
+            position: relative; z-index:10;
             text-align: center;
+            padding: 5rem 2rem;
+            background: linear-gradient(180deg, transparent, rgba(0,229,255,0.04));
         }
+        .cta h2 { font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 1rem; }
+        .cta p { color: rgba(255,255,255,0.45); margin-bottom: 2rem; }
 
-        .cta h2 {
-            font-size: clamp(2.5rem, 6vw, 4rem);
-            font-weight: 800;
-            margin-bottom: 1.5rem;
-        }
-
-        .cta h2 .gradient-text {
-            background: linear-gradient(135deg, var(--cyan-glow), var(--purple-dream));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .cta p {
-            font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 3rem;
-        }
-
-        .cta-buttons {
-            display: flex;
-            gap: 1.25rem;
-            justify-content: center;
-        }
-
+        /* ===== Footer ===== */
         footer {
-            position: relative;
-            z-index: 10;
-            padding: 3rem 5%;
-            text-align: center;
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 0.9rem;
-            border-top: 1px solid rgba(0, 229, 255, 0.1);
+            position: relative; z-index:10;
+            text-align: center; padding: 2.5rem 2rem;
+            border-top: 1px solid rgba(0,229,255,0.08);
+            color: rgba(255,255,255,0.3); font-size: 0.85rem;
         }
+        footer a { color: var(--cyan); text-decoration:none; }
 
-        @media (max-width: 768px) {
-            .nav-links { display: none; }
-            .stats { flex-direction: column; gap: 2rem; }
-            .stat-item::after { display: none; }
+        @media(max-width:768px) {
+            nav { padding: 0.8rem 1.2rem; }
+            .nav-links { display:none; }
+            .hero h1 { font-size: 2rem; }
+            .stats-bar { gap: 1.5rem; }
         }
     </style>
 </head>
 <body>
-    <!-- 星空海洋画布 -->
-    <canvas id="starry-ocean"></canvas>
 
-    <!-- 星光层 -->
-    <div class="stars-layer" id="stars-layer"></div>
+<div class="stars"></div>
 
-    <!-- 游动的鱼 -->
-    <div class="fish-container" id="fish-container"></div>
+<!-- 导航 -->
+<nav>
+    <div class="logo">星算<span>纪</span></div>
+    <ul class="nav-links">
+        <li><a href="index.html">首页</a></li>
+        <li><a href="models.html">模型</a></li>
+        <li><a href="pricing.html">价格</a></li>
+        <li><a href="docs.html">文档</a></li>
+        <li><a href="tutorial.html">教学</a></li>
+        <li><a href="console.html">控制台</a></li>
+    </ul>
+    <div class="nav-btns">
+        <a href="login.html" class="btn btn-ghost">登录</a>
+        <a href="register.html" class="btn btn-primary">免费注册</a>
+    </div>
+</nav>
 
-    <!-- 气泡 -->
-    <div id="bubbles-container"></div>
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-badge">🚀 支持 30+ 主流大模型 · OpenAI 兼容接口</div>
+    <h1>一个 API Key<br>调用<span class="gradient">所有</span>大模型</h1>
+    <p class="hero-sub">星算纪聚合 DeepSeek、通义千问、GPT、Claude、Gemini 等主流大模型，提供统一 OpenAI 兼容接口，按量计费，无套餐捆绑。</p>
+    <div class="hero-actions">
+        <a href="register.html" class="btn btn-primary">免费开始（送 ¥10 体验金）</a>
+        <a href="docs.html" class="btn btn-ghost">查看文档</a>
+    </div>
+</section>
 
-    <nav>
-        <div class="logo">星算<span>纪</span></div>
-        <ul class="nav-links">
-            <li><a href="index.html">首页</a></li>
-            <li><a href="apis.html">API</a></li>
-            <li><a href="models.html">模型</a></li>
-            <li><a href="pricing.html">价格</a></li>
-            <li><a href="docs.html">文档</a></li>
-        </ul>
-        <div>
-            <a href="login.html" class="btn btn-ghost">登录</a>
-            <a href="register.html" class="btn btn-primary">免费注册</a>
+<!-- 数据统计 -->
+<div class="stats-bar">
+    <div class="stat-item"><div class="stat-num">30+</div><div class="stat-label">大模型</div></div>
+    <div class="stat-item"><div class="stat-num">5</div><div class="stat-label">主流平台</div></div>
+    <div class="stat-item"><div class="stat-num">¥0.14</div><div class="stat-label">DeepSeek-V3 千Token</div></div>
+    <div class="stat-item"><div class="stat-num">99.9%</div><div class="stat-label">SLA 可用性</div></div>
+</div>
+
+<!-- 模型展示 -->
+<section class="section">
+    <div class="section-label">Models</div>
+    <h2 class="section-title">覆盖主流大模型</h2>
+    <p class="section-desc">一站式接入，无需分别申请各平台 API Key</p>
+    <div class="model-grid">
+        <div class="model-card">
+            <span class="provider p-deepseek">DeepSeek</span>
+            <h3>DeepSeek V3</h3>
+            <p class="price">¥<strong>0.14</strong> / 1M tokens 输入</p>
         </div>
-    </nav>
-
-    <section class="hero">
-        <div class="hero-badge">
-            <span class="status-dot"></span>
-            <span>200+ 模型 · 99.9% 可用性 · 实时运行</span>
+        <div class="model-card">
+            <span class="provider p-deepseek">DeepSeek</span>
+            <h3>DeepSeek R1</h3>
+            <p class="price">¥<strong>4.00</strong> / 1M tokens 输入</p>
         </div>
-        <h1>
-            在<span class="gradient-text">星空海洋</span><br>
-            中遨游 AI
-        </h1>
-        <p>
-            一个 API Key，调用全球顶尖大模型。<br>
-            极速响应，成本更低，让 AI 为你所用。
-        </p>
-        <div class="hero-buttons">
-            <a href="register.html" class="btn btn-primary btn-lg">免费开始 →</a>
-            <a href="docs.html" class="btn btn-ghost btn-lg">查看文档</a>
+        <div class="model-card">
+            <span class="provider p-qwen">阿里云</span>
+            <h3>Qwen3-235B</h3>
+            <p class="price">¥<strong>0.50</strong> / 1M tokens 输入</p>
         </div>
-
-        <div class="stats">
-            <div class="stat-item">
-                <div class="stat-num" data-target="200">0</div>
-                <div class="stat-label">AI 模型</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-num" data-target="50">0</div>
-                <div class="stat-label">API 服务</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-num" data-target="99.9">0</div>
-                <div class="stat-label">可用性 %</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-num" data-target="100">0</div>
-                <div class="stat-label">响应 &lt;ms</div>
-            </div>
+        <div class="model-card">
+            <span class="provider p-openai">OpenAI</span>
+            <h3>GPT-4o</h3>
+            <p class="price">¥<strong>17.15</strong> / 1M tokens 输入</p>
         </div>
-    </section>
-
-    <section class="features" id="features">
-        <div class="section-header">
-            <h2>为什么选择 <span class="gradient-text">星算纪</span></h2>
-            <p>为开发者打造的 AI 聚合服务</p>
+        <div class="model-card">
+            <span class="provider p-anthropic">Anthropic</span>
+            <h3>Claude 3.5 Sonnet</h3>
+            <p class="price">¥<strong>15.30</strong> / 1M tokens 输入</p>
         </div>
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">⚡</div>
-                <h3>极速响应</h3>
-                <p>全球 CDN 加速，平均响应 &lt;100ms，体验如本地调用般丝滑</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">🔗</div>
-                <h3>统一接口</h3>
-                <p>一个 API Key 调用所有模型，OpenAI 兼容协议，无缝迁移</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">💎</div>
-                <h3>成本更低</h3>
-                <p>比官方价格低至 60%，按量计费无套餐束缚</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">🛡️</div>
-                <h3>企业级稳定</h3>
-                <p>99.9% SLA 保障，多节点容灾备份</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">📊</div>
-                <h3>实时监控</h3>
-                <p>调用统计、费用分析、性能监控，一目了然</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">💬</div>
-                <h3>技术支持</h3>
-                <p>7×24 技术支持，专属技术顾问</p>
-            </div>
+        <div class="model-card">
+            <span class="provider p-google">Google</span>
+            <h3>Gemini 2.0 Flash</h3>
+            <p class="price">¥<strong>1.20</strong> / 1M tokens 输入</p>
         </div>
-    </section>
+    </div>
+    <div style="text-align:center;margin-top:2rem;">
+        <a href="models.html" class="btn btn-ghost">查看全部模型 →</a>
+    </div>
+</section>
 
-    <section class="cta">
-        <h2>准备好<span class="gradient-text">开始</span>了吗？</h2>
-        <p>免费注册，立即获得 100 次调用额度</p>
-        <div class="cta-buttons">
-            <a href="register.html" class="btn btn-primary btn-lg">免费注册</a>
-            <a href="contact.html" class="btn btn-ghost btn-lg">联系销售</a>
+<!-- 三步教学 -->
+<section class="section" style="max-width:1000px;">
+    <div class="section-label">Quick Start</div>
+    <h2 class="section-title">3 步接入，5 分钟上线</h2>
+    <p class="section-desc">OpenAI 兼容接口，一行代码切换，零改造迁移</p>
+    <div class="steps">
+        <div class="step">
+            <div class="step-num">1</div>
+            <h3>注册获取 API Key</h3>
+            <p>免费注册账户，系统自动赠送 ¥10 体验金，在控制台一键创建 API Key（格式 sk-xxxxx）。</p>
+            <div class="step-code">POST /register  →  获取 sk-xxxxx</div>
         </div>
-    </section>
+        <div class="step">
+            <div class="step-num">2</div>
+            <h3>替换接口地址</h3>
+            <p>将原有 OpenAI 接口的 base_url 替换为星算纪网关地址，其余代码无需修改。</p>
+            <div class="step-code">base_url = "https://api.xinsuanji.cn/v1"</div>
+        </div>
+        <div class="step">
+            <div class="step-num">3</div>
+            <h3>开始调用</h3>
+            <p>使用您的 API Key 发起请求，系统自动按 Token 用量从账户余额扣费，实时查看日志。</p>
+            <div class="step-code">Authorization: Bearer sk-xxxxx</div>
+        </div>
+    </div>
+    <div style="text-align:center;margin-top:2.5rem;">
+        <a href="tutorial.html" class="btn btn-primary" style="padding:0.8rem 2rem;border-radius:10px;">查看完整教学 →</a>
+    </div>
+</section>
 
-    <footer>
-        <p>© 2024 星算纪 · 一站式 AI API 聚合平台</p>
-    </footer>
+<!-- 核心特性 -->
+<section class="section">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">为什么选择星算纪？</h2>
+    <p class="section-desc">我们解决了大模型接入的所有痛点</p>
+    <div class="features">
+        <div class="feature">
+            <div class="feature-icon">🔌</div>
+            <h3>OpenAI 兼容</h3>
+            <p>接口格式与 OpenAI 完全一致，现有代码无需修改，改个 base_url 即可切换。</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">💰</div>
+            <h3>按量计费</h3>
+            <p>无套餐捆绑，用多少付多少。充值 ¥10 起，余额永久有效。</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">⚡</div>
+            <h3>低延迟转发</h3>
+            <p>国内服务器部署，平均延迟 &lt; 800ms，支持流式输出，体验丝滑。</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">📊</div>
+            <h3>实时日志</h3>
+            <p>每次调用记录详细日志：模型、Token 用量、费用、耗时、状态，方便对账。</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">🔑</div>
+            <h3>多 Key 管理</h3>
+            <p>支持创建多个 API Key，可设置不同权限和配额，适合团队协作。</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">🛡️</div>
+            <h3>稳定可靠</h3>
+            <p>多上游容灾，自动重试，99.9% SLA 保障，企业级可靠性。</p>
+        </div>
+    </div>
+</section>
 
-    <script>
-        // ============ 星空海洋画布 ============
-        const canvas = document.getElementById('starry-ocean');
-        const ctx = canvas.getContext('2d');
-        let stars = [];
-        let waves = [];
+<!-- 套餐价格 -->
+<section class="section">
+    <div class="section-label">Pricing</div>
+    <h2 class="section-title">简单透明的价格</h2>
+    <p class="section-desc">按量计费，无隐藏费用</p>
+    <div class="pricing-grid">
+        <div class="price-card">
+            <h3>免费版</h3>
+            <div class="desc">体验测试</div>
+            <div class="amount">¥0</div>
+            <div class="unit">永久免费</div>
+            <ul class="features-list">
+                <li>注册送 ¥10 体验金</li>
+                <li>QPS: 3</li>
+                <li>社区支持</li>
+            </ul>
+            <a href="register.html" class="btn btn-ghost" style="display:block;">免费注册</a>
+        </div>
+        <div class="price-card recommended">
+            <h3>基础版</h3>
+            <div class="desc">个人开发者</div>
+            <div class="amount">按量</div>
+            <div class="unit">充值即用</div>
+            <ul class="features-list">
+                <li>无月费，按 Token 扣费</li>
+                <li>QPS: 10</li>
+                <li>邮件支持</li>
+                <li>日志保留 7 天</li>
+            </ul>
+            <a href="console.html" class="btn btn-primary" style="display:block;">前往控制台</a>
+        </div>
+        <div class="price-card">
+            <h3>专业版</h3>
+            <div class="desc">团队 / 中小企业</div>
+            <div class="amount">¥199</div>
+            <div class="unit">/ 月</div>
+            <ul class="features-list">
+                <li>QPS: 50</li>
+                <li>7×12 技术支持</li>
+                <li>日志保留 30 天</li>
+                <li>专属技术顾问</li>
+            </ul>
+            <a href="console.html" class="btn btn-ghost" style="display:block;">联系销售</a>
+        </div>
+    </div>
+    <div style="text-align:center;margin-top:2rem;">
+        <a href="pricing.html" class="btn btn-ghost">查看详细价格 →</a>
+    </div>
+</section>
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
+<!-- CTA -->
+<section class="cta">
+    <h2>准备好开始了吗？</h2>
+    <p>注册即送 ¥10 体验金，无需信用卡，即刻调用 30+ 大模型。</p>
+    <div class="hero-actions" style="justify-content:center;">
+        <a href="register.html" class="btn btn-primary" style="padding:0.8rem 2rem;border-radius:10px;">免费注册</a>
+        <a href="docs.html" class="btn btn-ghost">阅读文档</a>
+    </div>
+</section>
 
-        // 星星
-        class Star {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height * 0.7; // 上半部分星空
-                this.size = Math.random() * 2 + 0.5;
-                this.opacity = Math.random() * 0.8 + 0.2;
-                this.twinkleSpeed = Math.random() * 0.02 + 0.01;
-                this.twinklePhase = Math.random() * Math.PI * 2;
-            }
-            update() {
-                this.twinklePhase += this.twinkleSpeed;
-                this.opacity = 0.3 + 0.7 * Math.abs(Math.sin(this.twinklePhase));
-            }
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-                ctx.fill();
+<!-- Footer -->
+<footer>
+    <p>© 2024 星算纪 xinsuanji.cn · <a href="docs.html">API 文档</a> · <a href="tutorial.html">新手教学</a> · <a href="mailto:support@xinsuanji.cn">联系支持</a></p>
+</footer>
 
-                // 星光
-                if (this.size > 1.2) {
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity * 0.1})`;
-                    ctx.fill();
-                }
-            }
-        }
-
-        // 海洋波浪
-        class Wave {
-            constructor(y, amplitude, frequency, speed, color) {
-                this.y = y;
-                this.amplitude = amplitude;
-                this.frequency = frequency;
-                this.speed = speed;
-                this.color = color;
-                this.phase = Math.random() * Math.PI * 2;
-            }
-            draw(time) {
-                ctx.beginPath();
-                ctx.moveTo(0, canvas.height);
-                for (let x = 0; x <= canvas.width; x += 5) {
-                    const y = this.y + Math.sin(x * this.frequency + time * this.speed + this.phase) * this.amplitude;
-                    ctx.lineTo(x, y);
-                }
-                ctx.lineTo(canvas.width, canvas.height);
-                ctx.closePath();
-                ctx.fillStyle = this.color;
-                ctx.fill();
-            }
-        }
-
-        // 初始化
-        for (let i = 0; i < 200; i++) stars.push(new Star());
-
-        waves.push(new Wave(canvas.height * 0.75, 30, 0.005, 0.02, 'rgba(0, 229, 255, 0.08)'));
-        waves.push(new Wave(canvas.height * 0.80, 25, 0.004, 0.015, 'rgba(124, 58, 237, 0.06)'));
-        waves.push(new Wave(canvas.height * 0.85, 20, 0.006, 0.025, 'rgba(0, 229, 255, 0.05)'));
-        waves.push(new Wave(canvas.height * 0.90, 15, 0.003, 0.018, 'rgba(124, 58, 237, 0.04)'));
-
-        let time = 0;
-        function animateOcean() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // 绘制深蓝渐变背景（海洋+星空）
-            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, '#0a1628');  // 深蓝（星空）
-            gradient.addColorStop(0.5, '#0d2137');  // 中蓝
-            gradient.addColorStop(1, '#0a1628');  // 深蓝（海洋）
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // 更新和绘制星星
-            stars.forEach(star => {
-                star.update();
-                star.draw();
-            });
-
-            // 绘制波浪
-            time += 1;
-            waves.forEach(wave => wave.draw(time));
-
-            requestAnimationFrame(animateOcean);
-        }
-        animateOcean();
-
-        // ============ 星光层 ============
-        const starsLayer = document.getElementById('stars-layer');
-        for (let i = 0; i < 50; i++) {
-            const star = document.createElement('div');
-            star.className = 'star';
-            star.style.left = Math.random() * 100 + '%';
-            star.style.top = Math.random() * 70 + '%';
-            star.style.width = Math.random() * 3 + 1 + 'px';
-            star.style.height = star.style.width;
-            star.style.setProperty('--duration', Math.random() * 3 + 2 + 's');
-            star.style.setProperty('--opacity-min', Math.random() * 0.3 + 0.2);
-            starsLayer.appendChild(star);
-        }
-
-        // ============ 游动的鱼 ============
-        const fishContainer = document.getElementById('fish-container');
-        
-        function createFish() {
-            const fish = document.createElement('div');
-            fish.className = 'fish';
-            
-            const size = Math.random() * 30 + 20;
-            const colors = [
-                ['#00e5ff', '#00b8d4'],
-                ['#7c3aed', '#5b21b6'],
-                ['#fbbf24', '#f59e0b'],
-                ['#06b6d4', '#0891b2'],
-                ['#a78bfa', '#8b5cf6']
-            ];
-            const colorPair = colors[Math.floor(Math.random() * colors.length)];
-            
-            fish.style.setProperty('--fish-size', size + 'px');
-            fish.style.setProperty('--fish-color-1', colorPair[0]);
-            fish.style.setProperty('--fish-color-2', colorPair[1]);
-            fish.style.setProperty('--fish-glow', colorPair[0]);
-            fish.style.setProperty('--swim-duration', Math.random() * 15 + 20 + 's');
-            fish.style.left = '-100px';
-            fish.style.top = Math.random() * 80 + 10 + '%';
-            fish.style.animationDelay = Math.random() * 10 + 's';
-            
-            fish.innerHTML = `
-                <div class="fish-body">
-                    <div class="fish-eye"></div>
-                    <div class="fish-tail"></div>
-                </div>
-            `;
-            
-            fishContainer.appendChild(fish);
-            
-            // 移除鱼（动画结束后）
-            setTimeout(() => {
-                if (fish.parentNode) fish.parentNode.removeChild(fish);
-            }, 35000);
-        }
-
-        // 定期创建鱼
-        setInterval(createFish, 3000);
-        // 初始创建几条
-        for (let i = 0; i < 5; i++) {
-            setTimeout(createFish, i * 1000);
-        }
-
-        // ============ 气泡 ============
-        const bubblesContainer = document.getElementById('bubbles-container');
-        
-        function createBubble() {
-            const bubble = document.createElement('div');
-            bubble.className = 'bubble';
-            
-            const size = Math.random() * 20 + 5;
-            bubble.style.width = size + 'px';
-            bubble.style.height = size + 'px';
-            bubble.style.left = Math.random() * 100 + '%';
-            bubble.style.setProperty('--rise-duration', Math.random() * 8 + 6 + 's');
-            bubble.style.setProperty('--drift', (Math.random() - 0.5) * 100 + 'px');
-            
-            bubblesContainer.appendChild(bubble);
-            
-            setTimeout(() => {
-                if (bubble.parentNode) bubble.parentNode.removeChild(bubble);
-            }, 15000);
-        }
-
-        setInterval(createBubble, 2000);
-        // 初始气泡
-        for (let i = 0; i < 8; i++) {
-            setTimeout(createBubble, i * 500);
-        }
-
-        // ============ 数字滚动 ============
-        const counters = document.querySelectorAll('.stat-num');
-        const animateCounters = () => {
-            counters.forEach(counter => {
-                const target = parseFloat(counter.getAttribute('data-target'));
-                const isDecimal = target % 1 !== 0;
-                const duration = 2000;
-                const step = target / (duration / 16);
-                let current = 0;
-
-                const timer = setInterval(() => {
-                    current += step;
-                    if (current >= target) {
-                        current = target;
-                        clearInterval(timer);
-                    }
-                    counter.textContent = isDecimal ? current.toFixed(1) : Math.floor(current);
-                }, 16);
-            });
-        };
-
-        setTimeout(animateCounters, 500);
-    </script>
 </body>
 </html>

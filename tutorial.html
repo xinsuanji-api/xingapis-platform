@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新手教学 - 星算纪</title>
+    <style>
+        :root { --cyan: #00e5ff; --purple: #7c3aed; --bg: #060d1a; --card: rgba(13,27,51,0.85); }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: 'SF Pro Display', -apple-system, sans-serif; background: var(--bg); color: #e2e8f0; line-height: 1.7; }
+
+        /* 星空背景 */
+        .stars { position:fixed; inset:0; z-index:0; background: radial-gradient(1.5px 1.5px at 20% 30%, rgba(0,229,255,0.6), transparent), radial-gradient(1px 1px at 80% 70%, rgba(124,58,237,0.5), transparent); background-size: 250px 250px; animation: drift 120s linear infinite; }
+        @keyframes drift { to { background-position: 250px 250px; } }
+
+        /* 导航 */
+        nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; justify-content:space-between; align-items:center; padding:0.9rem 3rem; background: rgba(6,13,26,0.95); backdrop-filter:blur(20px); border-bottom:1px solid rgba(0,229,255,0.12); }
+        .logo { font-size:1.5rem; font-weight:800; }
+        .logo span { background:linear-gradient(135deg,var(--cyan),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .nav-links { display:flex; gap:2rem; list-style:none; }
+        .nav-links a { color:rgba(255,255,255,0.65); text-decoration:none; font-size:0.9rem; transition:color 0.3s; }
+        .nav-links a:hover { color:var(--cyan); }
+        .nav-right { display:flex; gap:0.8rem; }
+        .btn { padding:0.55rem 1.4rem; border-radius:8px; font-size:0.88rem; font-weight:600; text-decoration:none; transition:all 0.3s; cursor:pointer; border:none; }
+        .btn-ghost { background:transparent; border:1px solid rgba(0,229,255,0.3); color:var(--cyan); }
+        .btn-primary { background:linear-gradient(135deg,var(--cyan),var(--purple)); color:#000; }
+        .btn-sm { padding:0.4rem 1rem; font-size:0.82rem; }
+
+        /* 主内容 */
+        .main { position:relative; z-index:10; max-width:960px; margin:0 auto; padding:7rem 2rem 5rem; }
+
+        h1 { font-size:2.4rem; font-weight:800; color:#fff; margin-bottom:0.8rem; }
+        .subtitle { font-size:1.1rem; color:rgba(255,255,255,0.45); margin-bottom:3rem; }
+
+        /* 步骤卡片 */
+        .step-card {
+            background: var(--card); border:1px solid rgba(0,229,255,0.1);
+            border-radius:16px; padding:2.2rem 2rem; margin-bottom:2rem;
+            transition: all 0.35s;
+        }
+        .step-card:hover { border-color:rgba(0,229,255,0.3); transform:translateY(-3px); }
+        .step-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.2rem; }
+        .step-num {
+            width:44px; height:44px; border-radius:12px;
+            background:linear-gradient(135deg,var(--cyan),var(--purple));
+            display:flex; align-items:center; justify-content:center;
+            font-weight:800; font-size:1.2rem; color:#000; flex-shrink:0;
+        }
+        .step-title { font-size:1.25rem; font-weight:700; color:#fff; }
+        .step-body { color:rgba(255,255,255,0.6); font-size:0.95rem; line-height:1.8; }
+        .step-body code {
+            background:rgba(0,229,255,0.1); padding:0.15rem 0.5rem;
+            border-radius:4px; font-family:'Courier New',monospace;
+            color:var(--cyan); font-size:0.88rem;
+        }
+        .step-body pre {
+            background:#000; border:1px solid rgba(0,229,255,0.15);
+            border-radius:10px; padding:1.2rem 1.5rem; margin:1rem 0;
+            overflow-x:auto;
+        }
+        .step-body pre code { background:none; padding:0; color:#00ff00; font-size:0.88rem; }
+        .tip {
+            background:rgba(0,229,255,0.06); border-left:4px solid var(--cyan);
+            padding:1rem 1.5rem; border-radius:0 8px 8px 0;
+            margin:1.2rem 0; font-size:0.9rem; color:rgba(255,255,255,0.65);
+        }
+        .warn {
+            background:rgba(251,191,36,0.06); border-left:4px solid #fbbf24;
+            padding:1rem 1.5rem; border-radius:0 8px 8px 0;
+            margin:1.2rem 0; font-size:0.9rem; color:rgba(255,255,255,0.65);
+        }
+        .success {
+            background:rgba(0,255,136,0.06); border-left:4px solid #00ff88;
+            padding:1rem 1.5rem; border-radius:0 8px 8px 0;
+            margin:1.2rem 0; font-size:0.9rem; color:rgba(255,255,255,0.65);
+        }
+
+        /* 目录 */
+        .toc {
+            background:var(--card); border:1px solid rgba(0,229,255,0.1);
+            border-radius:14px; padding:1.8rem 2rem; margin-bottom:3rem;
+        }
+        .toc-title { font-size:1rem; font-weight:700; color:var(--cyan); margin-bottom:1rem; }
+        .toc-list { list-style:none; }
+        .toc-list li { padding:0.35rem 0; }
+        .toc-list a { color:rgba(255,255,255,0.55); text-decoration:none; font-size:0.9rem; transition:color 0.2s; }
+        .toc-list a:hover { color:var(--cyan); }
+        .toc-list a::before { content:'→ '; color:rgba(0,229,255,0.3); }
+
+        /* 对比表 */
+        table { width:100%; border-collapse:collapse; margin:1.5rem 0; }
+        th { text-align:left; padding:0.8rem 1rem; background:rgba(0,229,255,0.06); color:var(--cyan); font-size:0.85rem; font-weight:600; border-bottom:1px solid rgba(0,229,255,0.12); }
+        td { padding:0.8rem 1rem; color:rgba(255,255,255,0.65); font-size:0.9rem; border-bottom:1px solid rgba(255,255,255,0.05); }
+        tr:hover td { background:rgba(0,229,255,0.02); }
+
+        .next-step {
+            display:flex; justify-content:space-between; align-items:center;
+            background:linear-gradient(135deg,rgba(0,229,255,0.08),rgba(124,58,237,0.08));
+            border:1px solid rgba(0,229,255,0.15); border-radius:14px;
+            padding:1.5rem 2rem; margin-top:3rem; flex-wrap:wrap; gap:1rem;
+        }
+        .next-step p { color:rgba(255,255,255,0.6); font-size:0.95rem; }
+        .next-step a { white-space:nowrap; }
+
+        footer { position:relative; z-index:10; text-align:center; padding:2.5rem 2rem; border-top:1px solid rgba(0,229,255,0.08); color:rgba(255,255,255,0.3); font-size:0.85rem; }
+
+        @media(max-width:768px) {
+            nav { padding:0.8rem 1.2rem; }
+            .nav-links { display:none; }
+            .main { padding:6rem 1.2rem 3rem; }
+            h1 { font-size:1.8rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="stars"></div>
+
+<nav>
+    <div class="logo">星算<span>纪</span></div>
+    <ul class="nav-links">
+        <li><a href="index.html">首页</a></li>
+        <li><a href="models.html">模型</a></li>
+        <li><a href="pricing.html">价格</a></li>
+        <li><a href="docs.html">文档</a></li>
+        <li><a href="tutorial.html" style="color:var(--cyan);">教学</a></li>
+        <li><a href="console.html">控制台</a></li>
+    </ul>
+    <div class="nav-right">
+        <a href="login.html" class="btn btn-ghost">登录</a>
+        <a href="register.html" class="btn btn-primary">免费注册</a>
+    </div>
+</nav>
+
+<div class="main">
+    <h1>📖 新手教学</h1>
+    <p class="subtitle">从注册到第一次成功调用，全程图文教学，5 分钟上手</p>
+
+    <!-- 目录 -->
+    <div class="toc">
+        <div class="toc-title">📋 目录</div>
+        <ul class="toc-list">
+            <li><a href="#s1">第一步：注册账户并获取 API Key</a></li>
+            <li><a href="#s2">第二步：理解接口地址和认证方式</a></li>
+            <li><a href="#s3">第三步：发起第一次 API 调用</a></li>
+            <li><a href="#s4">第四步：查看余额和调用日志</a></li>
+            <li><a href="#s5">第五步（可选）：Python / Node.js SDK 接入</a></li>
+            <li><a href="#faq">常见问题 FAQ</a></li>
+        </ul>
+    </div>
+
+    <!-- 步骤1 -->
+    <div class="step-card" id="s1">
+        <div class="step-header">
+            <div class="step-num">1</div>
+            <div class="step-title">注册账户并获取 API Key</div>
+        </div>
+        <div class="step-body">
+            <p><strong>① 注册账户</strong></p>
+            <p>访问 <a href="register.html" style="color:var(--cyan);">注册页面</a>，输入邮箱和密码，点击<strong>创建账户</strong>。</p>
+            <div class="success">🎉 注册成功即送 <code>¥10</code> 体验金，无需信用卡！</div>
+
+            <p style="margin-top:1.5rem;"><strong>② 登录控制台</strong></p>
+            <p>注册后自动跳转登录，进入 <a href="console.html" style="color:var(--cyan);">控制台</a>。</p>
+
+            <p style="margin-top:1.5rem;"><strong>③ 创建 API Key</strong></p>
+            <p>在控制台点击 <code>+ 创建 API Key</code>，输入 Key 名称（如"我的测试Key"），选择权限范围，点击<strong>创建</strong>。</p>
+            <div class="tip">⚠️ <strong>Key 只显示一次！</strong>创建完成后会弹窗显示您的 API Key（格式 <code>sk-xxxxxxxx</code>），请立即复制并妥善保存，关闭弹窗后无法再次查看！</div>
+
+            <p style="margin-top:1.5rem;"><strong>④ 验证 Key 有效</strong></p>
+            <p>在控制台 <code>API Keys</code> 标签页可以看到刚创建的 Key，状态为<strong>激活</strong>。</p>
+        </div>
+    </div>
+
+    <!-- 步骤2 -->
+    <div class="step-card" id="s2">
+        <div class="step-header">
+            <div class="step-num">2</div>
+            <div class="step-title">理解接口地址和认证方式</div>
+        </div>
+        <div class="step-body">
+            <p>星算纪提供 <strong>OpenAI 兼容接口</strong>，您现有的 OpenAI 代码只需修改 <code>base_url</code> 即可无缝迁移。</p>
+
+            <table>
+                <tr><th>项目</th><th>星算纪</th><th>OpenAI 官方</th></tr>
+                <tr><td>Base URL</td><td><code>https://api.xinsuanji.cn/v1</code></td><td><code>https://api.openai.com/v1</code></td></tr>
+                <tr><td>认证方式</td><td><code>Authorization: Bearer sk-xxx</code></td><td><code>Authorization: Bearer sk-xxx</code></td></tr>
+                <tr><td>请求格式</td><td>OpenAI 兼容</td><td>OpenAI 格式</td></tr>
+                <tr><td>响应格式</td><td>OpenAI 兼容</td><td>OpenAI 格式</td></tr>
+            </table>
+
+            <div class="tip">💡 如果您的代码用的是 OpenAI Python / Node.js SDK，只需改一行 <code>base_url</code>，其余代码完全不用改！</div>
+        </div>
+    </div>
+
+    <!-- 步骤3 -->
+    <div class="step-card" id="s3">
+        <div class="step-header">
+            <div class="step-num">3</div>
+            <div class="step-title">发起第一次 API 调用</div>
+        </div>
+        <div class="step-body">
+            <p><strong>方式一：curl（最快测试）</strong></p>
+            <pre><code># 替换 YOUR_API_KEY 为您的实际 Key
+curl https://api.xinsuanji.cn/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "model": "deepseek-v3",
+    "messages": [{"role": "user", "content": "你好，介绍一下自己"}]
+  }'</code></pre>
+
+            <p style="margin-top:1.5rem;"><strong>方式二：Python</strong></p>
+            <pre><code>from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",          # 您的星算纪 API Key
+    base_url="https://api.xinsuanji.cn/v1"
+)
+
+response = client.chat.completions.create(
+    model="deepseek-v3",
+    messages=[{"role": "user", "content": "解释量子计算"}]
+)
+
+print(response.choices[0].message.content)
+print(f"用量: {response.usage.total_tokens} tokens")
+print(f"费用: ¥{response.usage.total_tokens * 0.00014 / 1000:.6f}")</code></pre>
+
+            <p style="margin-top:1.5rem;"><strong>方式三：Node.js</strong></p>
+            <pre><code>import OpenAI from 'openai';
+
+const client = new OpenAI({
+  apiKey: 'YOUR_API_KEY',
+  baseURL: 'https://api.xinsuanji.cn/v1',
+});
+
+const response = await client.chat.completions.create({
+  model: 'deepseek-v3',
+  messages: [{ role: 'user', content: '你好！' }],
+});
+
+console.log(response.choices[0].message.content);</code></pre>
+
+            <div class="success">✅ 调用成功后，系统会自动从您的账户余额扣除费用，并在控制台"调用记录"中显示。</div>
+        </div>
+    </div>
+
+    <!-- 步骤4 -->
+    <div class="step-card" id="s4">
+        <div class="step-header">
+            <div class="step-num">4</div>
+            <div class="step-title">查看余额和调用日志</div>
+        </div>
+        <div class="step-body">
+            <p>登录 <a href="console.html" style="color:var(--cyan);">控制台</a> 可以实时查看：</p>
+            <ul style="color:rgba(255,255,255,0.6); line-height:2; margin:1rem 0; padding-left:1.5rem;">
+                <li><strong>账户余额</strong>：当前剩余金额（¥）</li>
+                <li><strong>API Keys</strong>：所有 Key 列表，可单独删除或禁用</li>
+                <li><strong>本月调用</strong>：本月累计请求次数</li>
+                <li><strong>本月消耗</strong>：本月累计费用（¥）</li>
+                <li><strong>调用记录</strong>：每次请求的详细日志（模型、Token 用量、费用、状态）</li>
+            </ul>
+
+            <div class="tip">💡 调用记录默认保留 7 天（免费版），升级套餐后可保留更长时间。</div>
+        </div>
+    </div>
+
+    <!-- 步骤5 -->
+    <div class="step-card" id="s5">
+        <div class="step-header">
+            <div class="step-num">5</div>
+            <div class="step-title">Python / Node.js SDK 接入（可选）</div>
+        </div>
+        <div class="step-body">
+            <p><strong>Python 安装</strong></p>
+            <pre><code>pip install openai</code></pre>
+
+            <p style="margin-top:1.5rem;"><strong>Python 完整示例（多轮对话 + 流式输出）</strong></p>
+            <pre><code>from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="https://api.xinsuanji.cn/v1"
+)
+
+# 流式输出
+stream = client.chat.completions.create(
+    model="deepseek-v3",
+    messages=[{"role": "user", "content": "用一句话解释人工智能"}],
+    stream=True
+)
+
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="", flush=True)</code></pre>
+
+            <p style="margin-top:1.5rem;"><strong>Node.js 安装</strong></p>
+            <pre><code>npm install openai</code></pre>
+
+            <p style="margin-top:1.5rem;"><strong>Node.js 完整示例</strong></p>
+            <pre><code>import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  apiKey: process.env.XINSJ_API_KEY,
+  baseURL: 'https://api.xinsuanji.cn/v1',
+});
+
+const models = await openai.models.list();
+console.log(models.data.map(m => m.id));</code></pre>
+        </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="step-card" id="faq">
+        <div class="step-header">
+            <div class="step-num">?</div>
+            <div class="step-title">常见问题 FAQ</div>
+        </div>
+        <div class="step-body">
+            <p><strong>Q：我的 API Key 泄露了怎么办？</strong></p>
+            <p>立即登录控制台，在 API Keys 页面删除该 Key，然后重新创建一个新的。Key 删除后无法恢复，请谨慎操作。</p>
+
+            <p style="margin-top:1.2rem;"><strong>Q：为什么调用返回 401 错误？</strong></p>
+            <p>通常是 API Key 错误或未在请求头中正确设置 <code>Authorization</code>。请检查 Key 是否复制完整（以 <code>sk-</code> 开头，约 50 位）。</p>
+
+            <p style="margin-top:1.2rem;"><strong>Q：为什么调用返回 402 错误？</strong></p>
+            <p>账户余额不足。请在控制台充值，最低充值 ¥10。</p>
+
+            <p style="margin-top:1.2rem;"><strong>Q：支持流式输出（Stream）吗？</strong></p>
+            <p>支持！在请求体中设置 <code>"stream": true</code>（OpenAI SDK 默认启用流式）。</p>
+
+            <p style="margin-top:1.2rem;"><strong>Q：如何切换模型？</strong></p>
+            <p>修改请求体中的 <code>"model"</code> 字段即可，例如 <code>"model": "gpt-4o"</code> 或 <code>"model": "claude-3.5-sonnet"</code>。</p>
+
+            <p style="margin-top:1.2rem;"><strong>Q：调用日志保留多久？</strong></p>
+            <p>免费版保留 7 天，基础版（按量计费）保留 7 天，专业版保留 30 天，企业版永久保留。</p>
+        </div>
+    </div>
+
+    <!-- 下一步 -->
+    <div class="next-step">
+        <p>教学看完了？立即注册，获取您的 API Key 开始调用！</p>
+        <div style="display:flex;gap:0.8rem;">
+            <a href="register.html" class="btn btn-primary">免费注册</a>
+            <a href="docs.html" class="btn btn-ghost">查看 API 文档</a>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>© 2024 星算纪 xinsuanji.cn · <a href="docs.html" style="color:var(--cyan);text-decoration:none;">API 文档</a> · <a href="mailto:support@xinsuanji.cn" style="color:var(--cyan);text-decoration:none;">联系支持</a></p>
+</footer>
+</body>
+</html>
