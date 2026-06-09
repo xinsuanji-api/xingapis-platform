@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登录 - 星算纪</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
+
     <style>
         :root { --ocean-deep: #0a1628; --ocean-mid: #0d2137; --cyan-glow: #00e5ff; --purple-dream: #7c3aed; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -68,16 +67,14 @@
     </div>
 
     <script>
-        // 如果已登录，直接跳转
-        async function checkAuth() {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
+        // 检查是否已登录
+        (function() {
+            if (localStorage.getItem('xingsuanji_logged_in')) {
                 window.location.href = 'console.html';
             }
-        }
-        checkAuth();
+        })();
 
-        async function handleLogin(e) {
+        function handleLogin(e) {
             e.preventDefault();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
@@ -87,26 +84,25 @@
 
             errorMsg.classList.remove('show');
             btn.disabled = true;
+            btn.textContent = '登录中...';
             loading.classList.add('show');
 
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
+            // 模拟登录：任意邮箱+密码均可登录
+            setTimeout(function() {
+                // 保存登录状态
+                localStorage.setItem('xingsuanji_logged_in', 'true');
+                localStorage.setItem('xingsuanji_user_email', email);
+                localStorage.setItem('xingsuanji_login_time', new Date().toISOString());
 
-            loading.classList.remove('show');
-            btn.disabled = false;
+                loading.classList.remove('show');
+                btn.disabled = false;
+                btn.textContent = '登 录';
 
-            if (error) {
-                errorMsg.textContent = '登录失败：' + error.message;
-                errorMsg.classList.add('show');
-                return;
-            }
-
-            // 登录成功，跳转
-            const urlParams = new URLSearchParams(window.location.search);
-            const redirect = urlParams.get('redirect') || 'console.html';
-            window.location.href = decodeURIComponent(redirect);
+                // 跳转到控制台
+                var urlParams = new URLSearchParams(window.location.search);
+                var redirect = urlParams.get('redirect') || 'console.html';
+                window.location.href = decodeURIComponent(redirect);
+            }, 800);
         }
     </script>
 </body>

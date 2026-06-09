@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>注册 - 星算纪</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
+
     <style>
         :root { --ocean-deep: #0a1628; --ocean-mid: #0d2137; --cyan-glow: #00e5ff; --purple-dream: #7c3aed; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -87,15 +86,19 @@
     </div>
 
     <script>
-        async function handleRegister(e) {
+        function handleRegister(e) {
             e.preventDefault();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
-            const btn = document.getElementById('btn-register');
-            const errorMsg = document.getElementById('error-msg');
-            const successMsg = document.getElementById('success-msg');
-            const loading = document.getElementById('loading');
+            var email = document.getElementById('email').value.trim();
+            var password = document.getElementById('password').value;
+            var confirmPassword = document.getElementById('confirm-password').value;
+            var btn = document.getElementById('btn-register');
+            var errorMsg = document.getElementById('error-msg');
+            var successMsg = document.getElementById('success-msg');
+            var loading = document.getElementById('loading');
+
+            // 隐藏之前的消息
+            errorMsg.classList.remove('show');
+            successMsg.classList.remove('show');
 
             // 验证
             if (password !== confirmPassword) {
@@ -109,34 +112,33 @@
                 return;
             }
 
-            errorMsg.classList.remove('show');
-            successMsg.classList.remove('show');
-            btn.disabled = true;
-            loading.classList.add('show');
-
-            const { data, error } = await supabase.auth.signUp({
-                email: email,
-                password: password
-            });
-
-            loading.classList.remove('show');
-            btn.disabled = false;
-
-            if (error) {
-                errorMsg.textContent = '注册失败：' + error.message;
+            // 检查是否已注册
+            var users = JSON.parse(localStorage.getItem('xingsuanji_users') || '{}');
+            if (users[email]) {
+                errorMsg.textContent = '该邮箱已注册，请直接登录';
                 errorMsg.classList.add('show');
                 return;
             }
 
-            // 注册成功
-            successMsg.textContent = '🎉 注册成功！请检查邮箱验证邮件，然后登录。';
-            successMsg.classList.add('show');
-            document.getElementById('register-form').reset();
+            btn.disabled = true;
+            loading.classList.add('show');
 
-            // 3秒后跳转登录
-            setTimeout(() => {
-                window.location.href = 'login.html?redirect=' + encodeURIComponent('console.html');
-            }, 3000);
+            // 模拟注册
+            setTimeout(function() {
+                users[email] = { password: password, created_at: new Date().toISOString() };
+                localStorage.setItem('xingsuanji_users', JSON.stringify(users));
+
+                loading.classList.remove('show');
+                btn.disabled = false;
+
+                successMsg.textContent = '🎉 注册成功！即将跳转到登录页...';
+                successMsg.classList.add('show');
+                document.getElementById('register-form').reset();
+
+                setTimeout(function() {
+                    window.location.href = 'login.html?redirect=' + encodeURIComponent('console.html');
+                }, 2000);
+            }, 600);
         }
     </script>
 </body>
